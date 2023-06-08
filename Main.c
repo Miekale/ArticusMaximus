@@ -17,7 +17,7 @@ void initilizeSensors()
 	wait1Msec(50);
 }
 
-void zeroPlotter()
+void zeroArticus()
 {
 	//move x and y until they hit the touch sensor
 
