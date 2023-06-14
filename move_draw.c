@@ -10,10 +10,10 @@ task main()
 }
 
 // Function Definitions
-void move_pen(float pos_0, float pos_1, bool draw=False, int max_draw_power, int max_move_power)
+void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, int max_move_power)
 {
 	/* Controls x motor and y motor to move pen from starting position
-	to ending position. Draw determines if
+	to ending position. 
 
 	PARAMETERS
 	----------
@@ -38,7 +38,7 @@ void move_pen(float pos_0, float pos_1, bool draw=False, int max_draw_power, int
 }
 
 
-void calc_motor_power(float pos_0, float pos_1, int max_power, int motor_powers)
+void calc_motor_power(float* pos_0, float* pos_1, int max_power, int* motor_powers)
 {
 	/*
 	Calculates x motor and y motor power from starting and ending positions,
@@ -62,7 +62,7 @@ void calc_motor_power(float pos_0, float pos_1, int max_power, int motor_powers)
 	return;
 }
 
-float calc_angle(float pos_0, float pos_1)
+float calc_angle(float* pos_0, float* pos_1)
 {
 	/*
 	Calculates angle (degrees) between two points,
