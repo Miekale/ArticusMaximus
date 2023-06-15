@@ -1,6 +1,6 @@
 // Functions required to move and draw robot
 void move_pen(float pos_0, float pos_1);
-void calc_motor_power(float pos_0, float pos_1, int max_power, int motor_powers);
+void calc_motor_power(float angle, int max_power, int* motor_powers);
 float calc_angle(float pos_0, float pos_1);
 
 // ---- UNIT TESTS -----
@@ -38,7 +38,7 @@ void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, i
 }
 
 
-void calc_motor_power(float* pos_0, float* pos_1, int max_power, int* motor_powers)
+void calc_motor_power(float angle, int max_power, int* motor_powers)
 {
 	/*
 	Calculates x motor and y motor power from starting and ending positions,
@@ -79,8 +79,17 @@ float calc_angle(float* pos_0, float* pos_1)
 	angle: float degrees between the two points
 
 	*/
-
-	// Funny Trig
-
-	return 0;
+	float delta_x = pos_1[0] - pos_0[0];
+	float delta_y = pos_1[1] - pos_0[1];
+	float angle = rad_to_deg(atan(delta_y / delta_x));
+	
+	// 1st or 2nd Quadrant
+	if (delta_y >0)
+	{
+		angle += 180; 
+	}
+	
+	// 3rd of 4th Quadrant
+	
+	return angle; 
 }

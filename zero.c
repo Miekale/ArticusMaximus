@@ -16,7 +16,7 @@ void initilizeSensors()
 	wait1Msec(50);
 }
 
-void zero(float &x, float &y)
+void zero(float* pos)
 {
 	//zeroing speeds
 	int speed_initial = 25;
@@ -66,8 +66,8 @@ void zero(float &x, float &y)
 	{}
 	motor[motorB] = 0;
 	//initilize quardinate 0, 0
-	x = 0;
-	y = 0;
+	pos[0] = 0;
+	pos[1] = 0;
 }
 
 
