@@ -83,13 +83,24 @@ float calc_angle(float* pos_0, float* pos_1)
 	float delta_y = pos_1[1] - pos_0[1];
 	float angle = rad_to_deg(atan(delta_y / delta_x));
 	
-	// 1st or 2nd Quadrant
-	if (delta_y >0)
+	// 2nd Quadrant 
+	if (delta_y > 0 && delta_x < 0)
 	{
 		angle += 180; 
 	}
 	
-	// 3rd of 4th Quadrant
+	// 3rd Quadrant
+	else if (delta_y < 0 && delta_x < 0)
+	{
+		angle += 180; 
+	}
 	
+	// 4th Quadrant
+	else if (delta_y > 0 && delta_x < 0)
+	{
+		angle += 360; 
+	}
+	
+	// 1st Qudrant do nothing
 	return angle; 
 }
