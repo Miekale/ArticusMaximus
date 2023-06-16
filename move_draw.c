@@ -10,7 +10,7 @@ task main()
 }
 
 // Function Definitions
-void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, int max_move_power)
+void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, int max_move_power, int pen_distance)
 {
 	/* Controls x motor and y motor to move pen from starting position
 	to ending position. 
@@ -27,13 +27,28 @@ void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, i
 	void
 	*/
 
-	// Determine angle
-
-	// Determine motor power
+	// Get angle
+	float angle = calc_angle(pos_0, pos_1); 
+	
+	// Get motor power
+	float motor_powers[2] = {0,0};
+	calc_motor_power(angle, max_move_power, motor_powers); 
+	
+	// If draw then lower pen
+	if (draw)
+	{
+		pen_down(pen_distance);
+	}
 
 	// Move motors at power
 
 	// Keep moving motor until limit reached / passed
+	
+	if (draw)
+	{
+		pen_up(pen_distance);
+	}
+	return;
 
 }
 
