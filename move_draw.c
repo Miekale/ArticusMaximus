@@ -10,7 +10,7 @@ task main()
 }
 
 // Function Definitions
-void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, int max_move_power, int pen_distance)
+void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power, int pen_distance)
 {
 	/* Controls x motor and y motor to move pen from starting position
 	to ending position. 
@@ -37,17 +37,45 @@ void move_pen(float* pos_0, float* pos_1, bool draw=False, int max_draw_power, i
 	// If draw then lower pen
 	if (draw)
 	{
-		pen_down(pen_distance);
+		pen_down();
 	}
 
 	// Move motors at power
+	motor[motorA] = motor_powers[0]; 
+	motor[motorD] = motor_powers[1];
 
-	// Keep moving motor until limit reached / passed
+	// Keep moving motor until either x or y target passed
+	// 1st Quadrant 
+	if (angle < 90)
+	{
+		while (nMotorEncoder[motorA] < pos_1[0] || nMotorEncoder[motorA] < pos_1[1]) 
+		{}
+	}
+	// 2nd Quadrant
+	else if (angle < 180)
+	{
+		while (nMotorEncoder[motorA] > pos_1[0] || nMotorEncoder[motorA] < pos_1[1]) 
+		{}
+	}
+	// 3rd Quadrant
+	else if (angle < 270)
+	{
+		while (nMotorEncoder[motorA] > pos_1[0] || nMotorEncoder[motorA] > pos_1[1]) 
+		{}
+	}
+	// 4th Quadrant
+	else
+	{
+		while (nMotorEncoder[motorA] < pos_1[0] || nMotorEncoder[motorA] > pos_1[1]) 
+		{}
+	}
+	motor[motorA] = motor[motorD] = 0; 
 	
 	if (draw)
 	{
-		pen_up(pen_distance);
+		pen_up();
 	}
+	
 	return;
 
 }
@@ -71,8 +99,8 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
 	motor_powers: int array[power x, power y]
 
 	*/
-
-	// Funny Trig
+	motor_powers[0] = max_power * cos(angle); 
+	motor_powers[1] = max_power * sin(angle); 
 
 	return;
 }
@@ -116,6 +144,6 @@ float calc_angle(float* pos_0, float* pos_1)
 		angle += 360; 
 	}
 	
-	// 1st Qudrant do nothing
+	// 1st Quadrant do nothing
 	return angle; 
 }
