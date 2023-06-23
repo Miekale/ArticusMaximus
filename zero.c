@@ -22,7 +22,7 @@ void zero(float* pos)
 	int speed_initial = 25;
 	int speed_final = 10;
 
-	//testing if on the sensor intitially and moving off the sensor
+	//testing if on the sensor initially and moving off the sensor
 	if (SensorValue[S1] == 1)
 	{
 		motor[motorA] = -speed_initial;
@@ -65,7 +65,7 @@ void zero(float* pos)
 	while (!SensorValue[S2])
 	{}
 	motor[motorB] = 0;
-	//initilize quardinate 0, 0
+	//initialize inordinate 0, 0
 	pos[0] = 0;
 	pos[1] = 0;
 }
