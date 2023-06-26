@@ -103,6 +103,7 @@ float calc_angle(float* pos_0, float* pos_1)
     return angle;
 }
 
+// Converts pos(x,y) from mm to degrees
 void pos_mm_to_degree(float* mm_pos, float* deg_pos)
 {
     deg_pos[0] = mm_to_degrees(mm_pos[0], GEAR_RADIUS_X);
@@ -207,17 +208,17 @@ int main()
 //    assert(motor_powers[0] == 71);
 //    assert(motor_powers[1] == -71);
 
-    // ANGLE CALCULATOR TESTS
-//    float x_positions[6] = {static_cast<float>(sqrt(3))/2, 1, -1, -1, 0.5, 1};
-//    float y_positions[6] = {0.5, 1, 1, -1, static_cast<float>(-sqrt(3))/2, -1};
-//    float origin[2] = {0,0};
-//    float angles[6] = {};
-//    for (int i = 0; i < 6; i++)
-//    {
-//        float pos_1[2] = {x_positions[i], y_positions[i]};
-//        angles[i] = calc_angle(origin, pos_1);
-//        cout << angles[i] << endl;
-//    }
+     ANGLE CALCULATOR TESTS
+    float x_positions[6] = {static_cast<float>(sqrt(3))/2, 1, -1, -1, 0.5, 1};
+    float y_positions[6] = {0.5, 1, 1, -1, static_cast<float>(-sqrt(3))/2, -1};
+    float origin[2] = {0,0};
+    float angles[6] = {};
+    for (int i = 0; i < 6; i++)
+    {
+        float pos_1[2] = {x_positions[i], y_positions[i]};
+        angles[i] = calc_angle(origin, pos_1);
+        cout << angles[i] << endl;
+    }
 
 
 
