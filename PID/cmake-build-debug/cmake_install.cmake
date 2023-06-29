@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/markd/CLionProjects/PID
+# Install script for directory: C:/Users/markd/Documents/GitHub/ArticusMaximus/PID
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/markd/CLionProjects/PID/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

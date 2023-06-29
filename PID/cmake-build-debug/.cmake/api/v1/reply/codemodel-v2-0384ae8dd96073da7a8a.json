@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/markd/CLionProjects/PID/cmake-build-debug",
-		"source" : "C:/Users/markd/CLionProjects/PID"
+		"build" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID/cmake-build-debug",
+		"source" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID"
 	},
 	"version" : 
 	{

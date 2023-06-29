@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/markd/CLionProjects/PID/cmake-build-debug"
+			"value" : "c:/Users/markd/Documents/GitHub/ArticusMaximus/PID/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -431,7 +431,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/markd/CLionProjects/PID/cmake-build-debug/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID/cmake-build-debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -503,7 +503,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/markd/CLionProjects/PID"
+			"value" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1119,7 +1119,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/markd/CLionProjects/PID/cmake-build-debug"
+			"value" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID/cmake-build-debug"
 		},
 		{
 			"name" : "PID_IS_TOP_LEVEL",
@@ -1143,7 +1143,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/markd/CLionProjects/PID"
+			"value" : "C:/Users/markd/Documents/GitHub/ArticusMaximus/PID"
 		},
 		{
 			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",
