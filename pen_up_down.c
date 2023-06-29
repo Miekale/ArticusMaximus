@@ -3,7 +3,7 @@ const float PEN_HEIGHT = 5;
 void pen_up();
 void pen_down(); 
 
-void pen_down();
+void pen_down()
 {
 	// Setting motor to run forwards until distance is pen distance away from the page
 	motor[motorD] = 25;
@@ -12,7 +12,7 @@ void pen_down();
 	motor[motorD] = 0;
 }
 
-void pen_up(); 
+void pen_up()
 {
 	// Setting motor runs backwards until distance is backwards to 0mm
 	motor[motorD] = -25;
