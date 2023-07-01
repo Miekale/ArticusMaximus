@@ -1,0 +1,91 @@
+
+1. To start the program open the gCodeGenerator.py file
+    --- You don't have to touch the image_process.py, unless you want to modified the code
+
+    If you start the gCodeGenerator.py it will install every required package (at least in theory). If you still have missing packages, you can check the imported packages in the .py file, and install them manually using 'pip'.
+
+
+-------- Uploading an image ------------
+
+	First you have to upload in image, which can be the one of the following formats:
+	    Windows bitmaps - *.bmp, *.dib
+	    JPEG files - *.jpeg, *.jpg, *.jpe
+	    JPEG 2000 files - *.jp2
+	    Portable Network Graphics - *.png
+	    Portable image format - *.pbm, *.pgm, *.ppm
+	    Sun rasters - *.sr, *.ras
+	    TIFF files - *.tiff, *.tif
+
+	Based on the openCV documentaion all of them should work, but I only tested with JPG and PNG.
+
+
+
+-------- Find all the contours you want -----------
+
+  The uploaded image gets processed automatically with the default detection parameters. The image in the right bottom is obviously the 'result'
+  image after every image transformation is made. 
+
+  You'll see 4 images: 
+  	1. uploaded image without modifications
+  	2. image converted to grayscale
+  	3. the grayscale image blurred (with the selected bluring process)
+  	4. the detected contours drawn on a blank canvas (result image)
+
+  If you click on any of the images, the 'result image' will be zoomed. (If you click on the zoomed image you close the zoom)
+
+  If you don't like the result image, you can change the detection parameters in the right column. After every change you make you have to press one of the two 'Recounter image' button. 
+
+   ----- The whole contour detection is made by openCV's findContour algorithm, the values you can change are basically the paramateres of the findContours() function. The 'Inverse binary contours detection' chechbox changes between THRESH_BINARY and THRESH_BINARY_INV parameter of the function. -----------
+
+  Changing the 'Detection minimum' and 'Blur Type' parameters will have to most effect on the result image. Most of the times the 'Detection maximum' and 'Inverse binary...' make minor changes.
+
+  After you found every contour you wanted, you can filter out the too small and too big contours using the 'Contour are filter' settings. 
+
+
+---------- Exporting the result to SVG ----------
+
+	You can export the only contours image by clicking on the 'Generate SVG' button. The SVG gets saved automatically to the 'output' folder located next gCodeGenerate.py file.
+
+	----- If you don't like the size of the SVG image, you can change the downscaling parameter in the 'image_process.py' file. The variable is called "image_to_svg_size_reduction". The higher its value, the smaller the created SVG image will be. ---------
+
+
+---------- Exporting the result to G-code -----------
+
+	The G-code generation can be done on the 'G-code generate' tab. Before you can generate the G-code, you have to enter the printing parameters.
+
+	------ Printer parameters ------
+
+	Work-height:  The Z coordinate of the printer head, at which the attached pencil (or any other tool you use) touches the paper (if you are
+	              drawing).
+
+	Move-height:  The Z coordinate at which the printer head moves between contours without touching the paper. For drawing for example it should 				be around 2mm higher than the Work-height.
+
+	Safe-height:  The Z coordinate at which the printer head should be able the move around the whole printing bed, without hitting anyting (for example the clips you fasted the paper to the bed with). This should be at least 20mm higher than the Work-height.
+
+
+	Bottom Left X/Y coordinates: The bottom left coordinates on the printer of the printed/drawn image. 
+
+	Top Right X/Y cooridnated: The top right coordinated on the printer of the printed/drawn image. 
+
+	You can use these to define the size of the printed image. For example, the Ender 3 Pro has an 230 mm x 230 mm printing bed, if I wanted a full size image the bottom left coordinated would be (0,0) and the top right coordinated are (230,230).
+
+	After you entered every parameter, you have to press the 'Save Options' button. Your settings will be saved in file, so the program remembers your settings.
+
+	------ Printing parameters -------
+
+	Printing speed: I think it's self explanatory. This value will be the 'F' parameter in the G-code. The default value is 1500 which is a 		   			correct speed for drawing on paper. 
+
+
+	Multiple passes, layers: If it is off only one pass/layer will be done. If you turn it on, you can specify how many times will the printer 							 go through the same path and you can set how much lower should the Work-height be on the next layers. Of course						 	 the Work-height decreases with this number of milimeters on every layer/pass)
+
+
+	After you set every parameter, you can press the 'Generate G-code...' button, to do what it says. The 'Save generated G-code...' button will save it to a .gcode file in the 'output' folder.
+
+
+	The generated G-code starts with basic commands which are hard coded. You can change these (and the whole generation process) in the 'image_process.py' file by modifying the 'generateGcode()' function.
+
+
+
+
+
+

@@ -6,12 +6,6 @@ float const GEAR_RADIUS_Y = 1;
 float const GEAR_RADIUS_Z = 1;
 float const PEN_DISTANCE = 5;
 
-// Position struct
-typedef struct {
-    float x;
-    float y;
-} Position;
-
 // PID Controller
 typedef struct
 {
@@ -83,12 +77,11 @@ float rad_to_deg(float rad)
 {
     return rad/PI*180.0;
 }
-// Converts pos(x,y) from mm to degrees
-void pos_mm_to_degree(Position mm_pos)
+// Converts pos(x,y) from mm to degrees, returns by reference
+void pos_mm_to_degree(float* mm_pos, float* deg_pos)
 {
-    Position deg_pos = {0,0};
-    deg_pos.x = mm_to_degrees(mm_pos.x, GEAR_RADIUS_X);
-    deg_pos.y = mm_to_degrees(mm_pos.y, GEAR_RADIUS_Y);
+    deg_pos[0] = mm_to_degrees(mm_pos[0], GEAR_RADIUS_X);
+    deg_pos[1] = mm_to_degrees(mm_pos[1], GEAR_RADIUS_Y);
     return;
 }
 
@@ -245,20 +238,20 @@ void zero(float* pos)
 // Moves pen into contact with page
 void pen_down()
 {
-// Setting motor to run forwards until distance is pen distance away from the page
-motor[motorD] = 25;
-while(PEN_HEIGHT > degrees_to_mm(nMotorEncoder[motorD], z_axis_gear_radius))
-{}
-motor[motorD] = 0;
+    // Setting motor to run forwards until distance is pen distance away from the page
+    motor[motorD] = 25;
+    while(PEN_HEIGHT > degrees_to_mm(nMotorEncoder[motorD], z_axis_gear_radius))
+    {}
+    motor[motorD] = 0;
 }
 // Moves pen away from page
 void pen_up()
 {
-// Setting motor runs backwards until distance is backwards to 0mm
-motor[motorD] = -25;
-while(0 < degrees_to_mm(nMotorEncoder[motorD], z_axis_gear_radius))
-{}
-motor[motorD] = 0;
+    // Setting motor runs backwards until distance is backwards to 0mm
+    motor[motorD] = -25;
+    while(0 < degrees_to_mm(nMotorEncoder[motorD], z_axis_gear_radius))
+    {}
+    motor[motorD] = 0;
 }
 
 void calc_motor_power(float angle, int max_power, int* motor_powers)
@@ -397,6 +390,7 @@ void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max
 
 }
 
+// Just to test non RobotC Functions
 int main()
 {
     // MOTOR POWER TESTS
@@ -435,4 +429,33 @@ int main()
 
 
 
+}
+
+// Actual main
+task main()
+{
+    // Initialize Sensors
+
+    // Open File
+
+    // Zero axises
+
+    // Init Pid
+
+
+    // ---- DRAWING LOOP ---- //
+    /* while file has instructions
+        if draw function:
+            pen down
+        update pid current position
+        set pid desired position
+        while not at desired position:
+            execute pid motor power command
+            update pid current position
+            check if desired position reached
+        pen up if pen was down
+
+    */
+
+    // close file
 }
