@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="049b44d7-9776-415c-8262-e91191bcbf8c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Main.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/.idea/PID.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/PID.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/PID.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/query/cache-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/query/codemodel-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/query/toolchains-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/cache-v2-602caa5de744f610abf6.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-b002a247b15708855aa7.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-0384ae8dd96073da7a8a.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-d0094a50bb2071803777.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/index-2023-06-26T14-24-31-0151.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/target-PID-Debug-58dfa5a7057c46139d6b.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-f0c292cb0d89c8ec50ee.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.ninja_deps" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/.ninja_log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeCache.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/3.25.2/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/3.25.2/CMakeRCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/3.25.2/CMakeSystem.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/3.25.2/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/clion-Debug-log.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/cmake.check_cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/CMakeFiles/rules.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/build.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/cmake-build-debug/cmake_install.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../PID/main.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conversion_functions.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/HowToUse.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/among-us-original-image.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/circle.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/contour_output.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/cursed.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/gCodeGenerator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/goat.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/image_process.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/sample.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/sample.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../imageToGcode/square.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../move_draw.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pen_up_down.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../pid_implimentation.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../test.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../zero.c" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2023" />
+    <option name="minorVersion" value="1.4" />
+  </component>
+  <component name="ProjectId" id="2RyR3KXr4Y3Trasqs6twOjtnEqh" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="049b44d7-9776-415c-8262-e91191bcbf8c" name="Changes" comment="" />
+      <created>1688220135155</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1688220135155</updated>
+      <workItem from="1688220137135" duration="5000" />
+    </task>
+    <servers />
+  </component>
+</project>
