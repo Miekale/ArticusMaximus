@@ -438,7 +438,7 @@ task main()
 
     // Open File
 
-    // Zero axises
+    // Zero pen
 
     // Init Pid
 
@@ -447,14 +447,13 @@ task main()
     /* while file has instructions
         if draw function:
             pen down
-        update pid current position
         set pid desired position
         while not at desired position:
+            update pid controller
             execute pid motor power command
-            update pid current position
             check if desired position reached
-        pen up if pen was down
-
+        if pen down:
+            pen up
     */
 
     // close file
