@@ -437,6 +437,9 @@ task main()
     // Initialize Sensors
 
     // Open File
+    TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "instructions.txt");
+
 
     // Zero pen
 
@@ -444,17 +447,18 @@ task main()
 
 
     // ---- DRAWING LOOP ---- //
-    /* while file has instructions
-        if draw function:
-            pen down
-        set pid desired position
-        while not at desired position:
-            update pid controller
-            execute pid motor power command
-            check if desired position reached
-        if pen down:
-            pen up
-    */
+    // while file has instructions
+    while (fin >> next_point)
+        // if draw function:
+            // pen down
+        // set pid desired position
+        // while not at desired position:
+            // update pid controller
+            // execute pid motor power command
+            // check if desired position reached
+        // if pen down:
+            // pen up
+
 
     // close file
 }
