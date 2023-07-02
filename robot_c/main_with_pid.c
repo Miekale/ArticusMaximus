@@ -46,14 +46,17 @@ void pos_mm_to_degree(float* mm_pos, float* deg_pos);
 void PID_controller_log(PID_controller *pid);
 void PID_controller_init(PID_controller *pid);
 float PID_controller_update(PID_controller *pid, float set_point, float measurement);
+void move_pen_with_PID(PID_controller *pid, float* pos_0, float* pos_1, bool draw,
+                       int max_draw_power, int max_move_power);
 // ROBOTC MOVEMENT FUNCTIONS
 void initialize_sensors();
+void get_current_pos(float* pos);
 void zero(float* pos);
 void pen_up();
 void pen_down();
 float calc_angle(float* pos_0, float* pos_1);
 void calc_motor_power(float angle, int max_power, float* motor_powers);
-void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power, int pen_distance);
+void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power);
 
 // ------ FUNCTION DEFINITIONS ------ //
 
@@ -180,6 +183,12 @@ void initialize_sensors()
     wait1Msec(100);
     SensorMode[S4] = modeEV3Gyro_RateAndAngle;
     wait1Msec(50);
+}
+// Get current pen position in mm
+void get_current_pos(float* pos)
+{
+    pos[0] = nMototEncoder(motorA);
+    pos[1] = nMotorEncoder(motorD);
 }
 // Zero pen x, y, z
 void zero(float* pos)
@@ -317,7 +326,7 @@ float calc_angle(float* pos_0, float* pos_1)
     return angle;
 }
 
-void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power, int pen_distance)
+void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power)
 {
     /* Controls x motor and y motor to move pen from starting position
     to ending position.
@@ -339,12 +348,17 @@ void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max
 
     // Get motor power
     float motor_powers[2] = {0,0};
-    calc_motor_power(angle, max_move_power, motor_powers);
 
-    // If draw then lower pen
+
+    // Drawing mode
     if (draw)
     {
+        calc_motor_power(angle, max_draw_power, motor_powers);
         pen_down();
+    }
+    else
+    {
+        calc_motor_power(angle, max_move_power, motor_powers);
     }
 
     // Move motors at power
@@ -390,6 +404,54 @@ void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max
 
 }
 
+void move_pen_with_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, bool draw)
+{
+    /* Controls x motor and y motor to move pen from starting position
+     to ending position using PID controller.
+
+     PARAMETERS
+     ----------
+     pid_x: PID Controller struct for x-direction motor
+     pid_y: PID Controller struct for y-direction motor
+     target_pos: float array[x,y], target position.
+     max_draw_power: int <100, maximum motor power allowed while drawing
+     max_move_power: int <100, maximum motor power allowed while moving
+
+     RETURNS
+     -------
+     void
+     */
+    float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
+
+    // Init motor power
+    float motor_powers[2] = {0,0};
+    // Drawing mode
+    if (draw)
+    {
+        pen_down();
+    }
+    // PID Loop
+    float current_pos[2] = {0,0};
+    get_current_pos(current_pos);
+    while ((abs(current_pos[0] - target_pos[0]) > POS_TOL)) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
+    {
+        // Update PID
+        PID_controller_update(pid_x, target_pos[0], current_pos[0]);
+        PID_controller_update(pid_y, target_pos[1], current_pos[0]);
+        // Set motor powers
+        motor[motorA] = pix_x->output;
+        motor[motorD] = pix_y->output;
+        // Wait
+        wait1MSec(pid_x->sample_time);
+        get_current_pos(current_pos);
+    }
+    // Turn off motors once target reached
+    motor[motorA] = motor[motorD] = 0;
+    if (draw)
+    {
+        pen_up();
+    }
+}
 // Just to test non RobotC Functions
 int main()
 {
@@ -435,30 +497,64 @@ int main()
 task main()
 {
     // Initialize Sensors
+    initialize_sensors();
 
-    // Open File
+    // Input File Validation
     TFileHandle fin;
     bool fileOkay = openReadPC(fin, "instructions.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1MSec(3000);
+        return;
+    }
 
+    // Initialize position and zero pen
+    float pen_pos[2] = {0,0};
+    zero(pen_pos);
 
-    // Zero pen
-
-    // Init Pid
-
+    // Create controller
+    PID_controller pid_x;
+    PID_controller pid_y;
+    PID_controller_init(&pid_x);
+    PID_controller_init(&pid_y);
+    // TODO: Tune Low-pass filter tau and calculate sample time
+    pid_x.sample_time = pid_y.sample_time = .01;
+    pid_x.tau = 0.00;
+    pid_x.lim_min = pid_y.lim_min = -80.0f;
+    pid_x.lim_max = pid_y.lim_max = 80.0f;
+    // TODO: Tune Constants
+    pid_x.kp = 1;
+    pid_x.ki = 0;
+    pid_x.kd = 0;
+    pid_y.kp = 1;
+    pid_y.ki = 0;
+    pid_y.kd = 0;
 
     // ---- DRAWING LOOP ---- //
-    // while file has instructions
-    while (fin >> next_point)
-        // if draw function:
-            // pen down
-        // set pid desired position
-        // while not at desired position:
-            // update pid controller
-            // execute pid motor power command
-            // check if desired position reached
-        // if pen down:
-            // pen up
-
-
+    // Read each contour
+    string contour_name = "";
+    while (readTextPC(fin, contour_name)
+    {
+        int contour_size = 0;
+        readIntPC(fin, contour_size);
+        for (int point = 0; point < countour_size; point++)
+        {
+            // Determine if D (draw) or M (move)
+            bool is_draw = false;
+            string move_or_draw = "";
+            readStringPC(fin, move_or_draw);
+            if move_or_draw == "D"
+            {
+                is_draw = true;
+            }
+            // Get target location
+            int next_point[2] = {0,0};
+            readIntPC(fin, next_point[0]);
+            readIntPC(fin, next_point[1]);
+            // Move to target location
+            move_pen_with_PID(pid_x, pid_y, next_point, draw);
+        }
+    }
     // close file
+    fin.close(); 
 }
