@@ -556,5 +556,5 @@ task main()
         }
     }
     // close file
-    fin.close(); 
+    closeFilePC(fin);
 }
