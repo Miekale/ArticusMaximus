@@ -14,6 +14,9 @@ typedef struct
     float ki;
     float kd;
 
+    // Controller motion profile
+    float speed;
+
     // Derivative low pass filter time constant
     float tau;
 
@@ -185,6 +188,7 @@ void initialize_sensors()
     wait1Msec(50);
 }
 // Get current pen position in mm
+// TODO: WRITE POS_DEG_TO_MM AND IMPLEMENT HERE
 void get_current_pos(float* pos)
 {
     pos[0] = nMototEncoder(motorA);
@@ -422,28 +426,44 @@ void move_pen_with_PID(PID_controller* pid_x, PID_controller* pid_y, float* targ
      */
     float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
 
-    // Init motor power
+    // Initialize starting positions
     float motor_powers[2] = {0,0};
+    float starting_pos[2] = {0};
+    float current_pos[2] = {0};
+    get_current_pos(current_pos);
+    starting_pos[0] = current_pos[0];
+    starting_pos[1] = current_pos[1];
+
     // Drawing mode
     if (draw)
     {
         pen_down();
     }
+
+    // Motion profile
+    float x_f = target_pos[0];
+    float x_i = starting_pos[0];
+    float y_f = target_pos[1];
+    float y_i = starting_pos[1];
+
     // PID Loop
-    float current_pos[2] = {0,0};
-    get_current_pos(current_pos);
-    while ((abs(current_pos[0] - target_pos[0]) > POS_TOL)) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
+    time1[T1] = 0;
+    while ((abs(current_pos[0] - x_f) > POS_TOL) || (abs(current_pos[1] - y_f) > POS_TOL))
     {
-        // Update PID
-        PID_controller_update(pid_x, target_pos[0], current_pos[0]);
-        PID_controller_update(pid_y, target_pos[1], current_pos[0]);
-        // Set motor powers
-        motor[motorA] = pix_x->output;
-        motor[motorD] = pix_y->output;
-        // Wait
-        wait1MSec(pid_x->sample_time);
+        // get next point on motion profile
+        float t = time1[T1] * pid_x->speed;
+        float x_t = x_i + (x_f - x_i) * t;
+        float y_t = y_i + (y_f - y_i) * t;
+        // update PID controllers
+        PID_controller_update(pid_x, x_t, current_pos[0]);
+        PID_controller_update(pid_y, y_t, current_pos[1]);
+        motor_powers[0] = pid_x->output;
+        motor_powers[1] = pid_x->output;
+        wait1Msec(pid_x->sample_time);
+        // update current position for loop condition
         get_current_pos(current_pos);
     }
+
     // Turn off motors once target reached
     motor[motorA] = motor[motorD] = 0;
     if (draw)
@@ -495,6 +515,7 @@ int main()
 // Actual main
 task main()
 {
+    // ---- INITIALIZATION LOOP ---- //
     // Initialize Sensors
     initialize_sensors();
 
@@ -518,6 +539,7 @@ task main()
     PID_controller_init(&pid_y);
     // TODO: Tune Low-pass filter tau and calculate sample time
     pid_x.sample_time = pid_y.sample_time = .01;
+    pid_x.speed = pid_y.speed = 0.2;
     pid_x.tau = 0.00;
     pid_x.lim_min = pid_y.lim_min = -80.0f;
     pid_x.lim_max = pid_y.lim_max = 80.0f;
