@@ -419,7 +419,6 @@ void move_pen_with_PID(PID_controller* pid_x, PID_controller* pid_y, float* targ
 
      RETURNS
      -------
-     void
      */
     float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
 
