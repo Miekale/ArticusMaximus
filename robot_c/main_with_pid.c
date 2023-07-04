@@ -538,11 +538,11 @@ task main()
     PID_controller_init(&pid_x);
     PID_controller_init(&pid_y);
     // TODO: Tune Low-pass filter tau and calculate sample time
-    pid_x.sample_time = pid_y.sample_time = .01;
+    pid_x.sample_time = pid_y.sample_time = 0.01;
     pid_x.speed = pid_y.speed = 0.2;
     pid_x.tau = 0.00;
-    pid_x.lim_min = pid_y.lim_min = -80.0f;
-    pid_x.lim_max = pid_y.lim_max = 80.0f;
+    pid_x.lim_min = pid_y.lim_min = -80.0;
+    pid_x.lim_max = pid_y.lim_max = 80.0;
     // TODO: Tune Constants
     pid_x.kp = 1;
     pid_x.ki = 0;
