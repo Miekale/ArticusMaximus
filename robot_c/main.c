@@ -54,7 +54,7 @@ void move_pen_with_PID(PID_controller *pid, float* pos_0, float* pos_1, bool dra
                        int max_draw_power, int max_move_power);
 // ROBOTC MOVEMENT FUNCTIONS
 void initialize_sensors();
-void get_current_pos(float* pos);
+void get_current_pos(float* mm_pos);
 void zero(float* pos);
 void pen_up();
 void pen_down();
@@ -100,22 +100,22 @@ void pos_degree_to_mm(float* mm_pos, float* deg_pos) {
 // Printing PID Controller values
 void PID_controller_log(PID_controller *pid)
 {
-    printf("integrator %.6f\n", pid->integrator);
-    printf("prev_error %.6f \n", pid->prev_error);
-    printf("differentiator %.6f \n", pid->differentiator);
-    printf("prev_measurement %.6f \n", pid->prev_measurement);
-    printf("output %.6f \n", pid->output);
-    printf("\n");
+    displayString(5, "integrator %.6f\n", pid->integrator);
+    displayString(10, "prev_error %.6f \n", pid->prev_error);
+    displayString(15, "differentiator %.6f \n", pid->differentiator);
+    displayString(20, "prev_measurement %.6f \n", pid->prev_measurement);
+    displayString(25, "output %.6f \n", pid->output);
+    displayString(30, "\n");
 }
 // Reset PID values
 void PID_controller_init(PID_controller *pid)
 {
     // Reset variables
-    pid->integrator = 0.0f;
-    pid->prev_error = 0.0f;
-    pid->differentiator = 0.0f;
-    pid->prev_measurement = 0.0f;
-    pid->output = 0.0f;
+    pid->integrator = 0.0;
+    pid->prev_error = 0.0;
+    pid->differentiator = 0.0;
+    pid->prev_measurement = 0.0;
+    pid->output = 0.0;
 }
 // Update PID values
 float PID_controller_update(PID_controller *pid, float set_point, float measurement)
@@ -127,7 +127,7 @@ float PID_controller_update(PID_controller *pid, float set_point, float measurem
     float proportional = pid->kp * error;
 
     // Integral
-    pid->integrator += 0.5f * pid->ki * pid->sample_time * (error + pid->prev_error);
+    pid->integrator += 0.5 * pid->ki * pid->sample_time * (error + pid->prev_error);
 
     // Anti-Windup with dynamic integrator clamping
     float lim_min_int = 0, lim_max_int = 0;
@@ -152,9 +152,7 @@ float PID_controller_update(PID_controller *pid, float set_point, float measurem
     }
 
     // Derivative (low pass filter)
-    pid->differentiator = (2.0f * pid->kd *(measurement - pid->prev_measurement)
-                           + (2.0f * pid->tau - pid->sample_time) * pid->differentiator)
-                          / (2.0f * pid->tau + pid->sample_time);
+    pid->differentiator = (2.0 * pid->kd *(measurement - pid->prev_measurement) + (2.0 * pid->tau - pid->sample_time) * pid->differentiator) / (2.0 * pid->tau + pid->sample_time);
 
     // Compute output
     pid->output = proportional + pid->integrator + pid->differentiator;
@@ -196,9 +194,9 @@ void initialize_sensors()
 // Get current pen position in mm
 void get_current_pos(float* mm_pos)
 {
-    float deg_pos = {0};
-    deg_pos[0] = nMototEncoder(motorA);
-    deg_pos[1] = nMotorEncoder(motorD);
+    float deg_pos[2] = {0, 0};
+    deg_pos[0] = nMotorEncoder[motorA];
+    deg_pos[1] = nMotorEncoder[motorD];
     pos_degree_to_mm(mm_pos, deg_pos);
 }
 // Zero pen x, y, z
