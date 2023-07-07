@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include "PC_FileIO.c"
 
 // Global Constants
 float const GEAR_RADIUS_X = 1;
@@ -48,7 +48,7 @@ void pos_mm_to_degree(float* mm_pos, float* deg_pos);
 void pos_degree_to_mm(float* mm_pos, float* deg_pos);
 // PID CONTROLLER FUNCTIONS
 void PID_controller_log(PID_controller *pid);
-void PID_controller_init(PID_controller *pid);
+void PID_Controller_reset(PID_controller *pid);
 float PID_controller_update(PID_controller *pid, float set_point, float measurement);
 void move_pen_with_PID(PID_controller *pid, float* pos_0, float* pos_1, bool draw,
                        int max_draw_power, int max_move_power);
@@ -108,7 +108,7 @@ void PID_controller_log(PID_controller *pid)
     displayString(30, "\n");
 }
 // Reset PID values
-void PID_controller_init(PID_controller *pid)
+void PID_Controller_reset(PID_controller *pid)
 {
     // Reset variables
     pid->integrator = 0.0;
@@ -172,24 +172,15 @@ float PID_controller_update(PID_controller *pid, float set_point, float measurem
 }
 
 // Init Sensors
+// TODO: GET REAL SENSOR PORTS AND INITALIZE
 void initialize_sensors()
 {
     //touch x
     SensorType[S1] = sensorEV3_Touch;
     //touch y
     SensorType[S2] = sensorEV3_Touch;
-
     SensorType[S3] = sensorEV3_Color;
-    wait1Msec(50);
-    SensorMode[S3] = modeEV3Color_Color;
-    wait1Msec(50);
 
-    SensorType[S4] = sensorEV3_Gyro;
-    wait1Msec(50);
-    SensorMode[S4] = modeEV3Gyro_Calibration;
-    wait1Msec(100);
-    SensorMode[S4] = modeEV3Gyro_RateAndAngle;
-    wait1Msec(50);
 }
 // Get current pen position in mm
 void get_current_pos(float* mm_pos)
@@ -202,6 +193,8 @@ void get_current_pos(float* mm_pos)
 // Zero pen x, y, z
 void zero(float* pos)
 {
+    int const speed_initial = 20;
+    int const speed_final = 10;
     //testing if on the sensor initially and moving off the sensor
     if (SensorValue[S1] == 1)
     {
@@ -254,7 +247,7 @@ void pen_down()
 {
     // Setting motor to run forwards until distance is pen distance away from the page
     motor[motorD] = 25;
-    while(PEN_HEIGHT > degrees_to_mm(nMotorEncoder[motorD], GEAR_RADIUS_Z))
+    while(PEN_DISTANCE > degrees_to_mm(nMotorEncoder[motorD], GEAR_RADIUS_Z))
     {}
     motor[motorD] = 0;
 }
@@ -428,8 +421,8 @@ void move_pen_with_PID(PID_controller* pid_x, PID_controller* pid_y, float* targ
 
     // Initialize starting positions
     float motor_powers[2] = {0,0};
-    float starting_pos[2] = {0};
-    float current_pos[2] = {0};
+    float starting_pos[2] = {0, 0};
+    float current_pos[2] = {0, 0};
     get_current_pos(current_pos);
     starting_pos[0] = current_pos[0];
     starting_pos[1] = current_pos[1];
@@ -525,7 +518,7 @@ task main()
     bool fileOkay = openReadPC(fin, "instructions.txt");
     if (!fileOkay) {
         displayString(5, "FILE READ ERROR!");
-        wait1MSec(3000);
+        wait1Msec(3000);
         return;
     }
 
@@ -536,8 +529,8 @@ task main()
     // Create controller
     PID_controller pid_x;
     PID_controller pid_y;
-    PID_controller_init(&pid_x);
-    PID_controller_init(&pid_y);
+    PID_Controller_reset(&pid_x);
+    PID_Controller_reset(&pid_y);
     // TODO: Tune Low-pass filter tau and calculate sample time
     pid_x.sample_time = pid_y.sample_time = 0.01;
     pid_x.speed = pid_y.speed = 0.2;
@@ -555,26 +548,26 @@ task main()
     // ---- DRAWING LOOP ---- //
     // Read each contour
     string contour_name = "";
-    while (readTextPC(fin, contour_name)
+    while (readTextPC(fin, contour_name))
     {
         int contour_size = 0;
         readIntPC(fin, contour_size);
-        for (int point = 0; point < countour_size; point++)
+        for (int point = 0; point < contour_size; point++)
         {
             // Determine if D (draw) or M (move)
             bool is_draw = false;
             string move_or_draw = "";
-            readStringPC(fin, move_or_draw);
-            if move_or_draw == "D"
+            readTextPC(fin, move_or_draw);
+            if (move_or_draw == "D")
             {
                 is_draw = true;
             }
             // Get target location
-            int next_point[2] = {0,0};
-            readIntPC(fin, next_point[0]);
-            readIntPC(fin, next_point[1]);
+            float next_point[2] = {0,0};
+            readFloatPC(fin, next_point[0]);
+            readFloatPC(fin, next_point[1]);
             // Move to target location
-            move_pen_with_PID(pid_x, pid_y, next_point, draw);
+            move_pen_with_PID(&pid_x, &pid_y, next_point, is_draw);
         }
     }
     // close file
