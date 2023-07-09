@@ -1,6 +1,6 @@
 #include "PC_FileIO.c"
 
-// Global Constants
+// Global Hardware Constants
 float const GEAR_RADIUS_X = 1;
 float const GEAR_RADIUS_Y = 1;
 float const GEAR_RADIUS_Z = 1;
@@ -89,7 +89,6 @@ void pos_mm_to_degree(float* mm_pos, float* deg_pos)
 {
     deg_pos[0] = mm_to_degrees(mm_pos[0], GEAR_RADIUS_X);
     deg_pos[1] = mm_to_degrees(mm_pos[1], GEAR_RADIUS_Y);
-    return;
 }
 
 void pos_degree_to_mm(float* mm_pos, float* deg_pos) {
@@ -172,7 +171,7 @@ float PID_controller_update(PID_controller *pid, float set_point, float measurem
 }
 
 // Init Sensors
-// TODO: GET REAL SENSOR PORTS AND INITALIZE
+// TODO: GET REAL SENSOR PORTS AND INITIALIZE
 void initialize_sensors()
 {
     //touch x
@@ -509,7 +508,7 @@ int main()
 // Actual main
 task main()
 {
-    // ---- INITIALIZATION LOOP ---- //
+    // ---- INITIALIZATION ---- //
     // Initialize Sensors
     initialize_sensors();
 
@@ -531,12 +530,14 @@ task main()
     PID_controller pid_y;
     PID_Controller_reset(&pid_x);
     PID_Controller_reset(&pid_y);
+
     // TODO: Tune Low-pass filter tau and calculate sample time
     pid_x.sample_time = pid_y.sample_time = 0.01;
     pid_x.speed = pid_y.speed = 0.2;
     pid_x.tau = 0.00;
     pid_x.lim_min = pid_y.lim_min = -80.0;
     pid_x.lim_max = pid_y.lim_max = 80.0;
+
     // TODO: Tune Constants
     pid_x.kp = 1;
     pid_x.ki = 0;
