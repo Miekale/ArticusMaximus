@@ -50,7 +50,7 @@ void pos_degree_to_mm(float* mm_pos, float* deg_pos);
 void PID_controller_log(PID_controller *pid);
 void PID_Controller_reset(PID_controller *pid);
 float PID_controller_update(PID_controller *pid, float set_point, float measurement);
-void move_pen_with_PID(PID_controller *pid, float* pos_0, float* pos_1, bool draw,
+void draw_PID(PID_controller *pid, float* pos_0, float* pos_1, bool draw,
                        int max_draw_power, int max_move_power);
 // ROBOTC MOVEMENT FUNCTIONS
 void initialize_sensors();
@@ -60,7 +60,7 @@ void pen_up();
 void pen_down();
 float calc_angle(float* pos_0, float* pos_1);
 void calc_motor_power(float angle, int max_power, float* motor_powers);
-void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power);
+void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_power);
 
 // ------ FUNCTION DEFINITIONS ------ //
 
@@ -322,7 +322,7 @@ float calc_angle(float* pos_0, float* pos_1)
     return angle;
 }
 
-void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max_move_power)
+void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_power)
 {
     /* Controls x motor and y motor to move pen from starting position
     to ending position.
@@ -338,69 +338,56 @@ void move_pen(float* pos_0, float* pos_1, bool draw, int max_draw_power, int max
     -------
     void
     */
+    float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
 
-    // Get angle
-    float angle = calc_angle(pos_0, pos_1);
-
-    // Get motor power
-    float motor_powers[2] = {0,0};
-
+    // Initialize starting positions
+    float current_pos[2] = {0, 0};
+    get_current_pos(current_pos);
 
     // Drawing mode
     if (draw)
     {
+        // Get motor powers
+        float motor_powers[2] = {0,0};
+        float angle = calc_angle(current_pos, target_pos);
         calc_motor_power(angle, max_draw_power, motor_powers);
+
         pen_down();
-    }
-    else
-    {
-        calc_motor_power(angle, max_move_power, motor_powers);
-    }
 
-    // Move motors at power
-    motor[motorA] = motor_powers[0];
-    motor[motorD] = motor_powers[1];
+        // Move motors at power
+        motor[motorA] = motor_powers[0];
+        motor[motorD] = motor_powers[1];
 
-    // Keep moving motor until either x or y target passed
-    // Check motor encoders against angle-converted position
-    float encoder_target[2] ={0,0};
-    pos_mm_to_degree(pos_1, encoder_target);
-    // 1st Quadrant
-    if (angle < 90)
-    {
-        while (nMotorEncoder[motorA] < encoder_target[0] || nMotorEncoder[motorD] < encoder_target[1])
-        {}
-    }
-        // 2nd Quadrant
-    else if (angle < 180)
-    {
-        while (nMotorEncoder[motorA] > encoder_target[0] || nMotorEncoder[motorD] < encoder_target[1])
-        {}
-    }
-        // 3rd Quadrant
-    else if (angle < 270)
-    {
-        while (nMotorEncoder[motorA] > encoder_target[0] || nMotorEncoder[motorD] > encoder_target[1])
-        {}
-    }
-        // 4th Quadrant
-    else
-    {
-        while (nMotorEncoder[motorA] < encoder_target[0] || nMotorEncoder[motorD] > encoder_target[1])
-        {}
-    }
-    motor[motorA] = motor[motorD] = 0;
+        // Keep moving motor until end position reached
+        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
+        {
+            get_current_pos(current_pos);
+        }
 
-    if (draw)
-    {
         pen_up();
     }
-
+    // Moving mode
+    else
+    {
+        // Move x motor until target
+        motor[motorA] = max_move_power;
+        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL)
+        {
+            get_current_pos(current_pos);
+        }
+        motor[motorA] = 0;
+        motor[motorD] = max_move_power;
+        // Move y motor until target
+        while ((abs(current_pos[0] - target_pos[1]) > POS_TOL)
+        {
+            get_current_pos(current_pos);
+        }
+        motor[motorD] = 0;
+    }
     return;
-
 }
 
-void move_pen_with_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, bool draw)
+void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, bool draw)
 {
     /* Controls x motor and y motor to move pen from starting position
      to ending position using PID controller.
@@ -504,7 +491,54 @@ int main()
 }
 */
 
+void non_PID_main()
+{
+    // ---- INITIALIZATION ---- //
+    // Initialize Sensors
+    initialize_sensors();
 
+    // Input File Validation
+    TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "instructions.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1Msec(3000);
+        return;
+    }
+
+    // Initialize position and zero pen
+    float pen_pos[2] = {0,0};
+    zero(pen_pos);
+
+    // ---- DRAWING LOOP ---- //
+    // Read each contour
+    string contour_name = "";
+    while (readTextPC(fin, contour_name))
+    {
+        int contour_size = 0;
+        readIntPC(fin, contour_size);
+        for (int point = 0; point < contour_size; point++)
+        {
+            // Determine if D (draw) or M (move)
+            bool is_draw = false;
+            string move_or_draw = "";
+            readTextPC(fin, move_or_draw);
+            if (move_or_draw == "D")
+            {
+                is_draw = true;
+            }
+            // Get target location
+            float next_point[2] = {0,0};
+            readFloatPC(fin, next_point[0]);
+            readFloatPC(fin, next_point[1]);
+            
+            // Move to target location
+            draw_no_PID(next_point, is_draw, 80, 80);
+        }
+    }
+    // close file
+    closeFilePC(fin);
+}
 // Actual main
 task main()
 {
@@ -568,7 +602,7 @@ task main()
             readFloatPC(fin, next_point[0]);
             readFloatPC(fin, next_point[1]);
             // Move to target location
-            move_pen_with_PID(&pid_x, &pid_y, next_point, is_draw);
+            draw_PID(&pid_x, &pid_y, next_point, is_draw);
         }
     }
     // close file
