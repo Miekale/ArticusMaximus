@@ -403,7 +403,15 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
      RETURNS
      -------
      */
-    float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
+    // If moving only no PID needed
+    if (!draw)
+    {
+        draw_no_PID(target_pos, false, 80, 80);
+        return;
+    }
+
+    // Pen move until within 0.1mm of actual target
+    float const POS_TOL = 0.1;
 
     // Initialize starting positions
     float motor_powers[2] = {0,0};
@@ -413,11 +421,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
     starting_pos[0] = current_pos[0];
     starting_pos[1] = current_pos[1];
 
-    // Drawing mode
-    if (draw)
-    {
-        pen_down();
-    }
+    pen_down();
 
     // Motion profile
     float x_f = target_pos[0];
@@ -445,10 +449,8 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 
     // Turn off motors once target reached
     motor[motorA] = motor[motorD] = 0;
-    if (draw)
-    {
-        pen_up();
-    }
+    pen_up();
+
 }
 
 /*
@@ -527,6 +529,7 @@ void non_PID_main()
             {
                 is_draw = true;
             }
+
             // Get target location
             float next_point[2] = {0,0};
             readFloatPC(fin, next_point[0]);
