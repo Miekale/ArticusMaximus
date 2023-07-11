@@ -50,8 +50,9 @@ void pos_degree_to_mm(float* mm_pos, float* deg_pos);
 void PID_controller_log(PID_controller *pid);
 void PID_Controller_reset(PID_controller *pid);
 float PID_controller_update(PID_controller *pid, float set_point, float measurement);
-void draw_PID(PID_controller *pid, float* pos_0, float* pos_1, bool draw,
-                       int max_draw_power, int max_move_power);
+void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, bool draw);
+
+
 // ROBOTC MOVEMENT FUNCTIONS
 void initialize_sensors();
 void get_current_pos(float* mm_pos);
@@ -371,14 +372,14 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     {
         // Move x motor until target
         motor[motorA] = max_move_power;
-        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL)
+        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL))
         {
             get_current_pos(current_pos);
         }
         motor[motorA] = 0;
         motor[motorD] = max_move_power;
         // Move y motor until target
-        while ((abs(current_pos[0] - target_pos[1]) > POS_TOL)
+        while ((abs(current_pos[0] - target_pos[1]) > POS_TOL))
         {
             get_current_pos(current_pos);
         }
@@ -534,7 +535,7 @@ void non_PID_main()
             float next_point[2] = {0,0};
             readFloatPC(fin, next_point[0]);
             readFloatPC(fin, next_point[1]);
-            
+
             // Move to target location
             draw_no_PID(next_point, is_draw, 80, 80);
         }
@@ -549,12 +550,19 @@ task main()
     // Initialize Sensors
     initialize_sensors();
 
-    // Input File Validation
+    // File Validation
     TFileHandle fin;
-    bool fileOkay = openReadPC(fin, "instructions.txt");
-    if (!fileOkay) {
+    bool input_file_okay = openReadPC(fin, "instructions.txt");
+    if (!input_file_okay) {
         displayString(5, "FILE READ ERROR!");
-        wait1Msec(3000);
+        wait1Msec(5000);
+        return;
+    }
+    TFileHandle fout;
+    bool output_file_okay = openReadPC(fin, "output.txt");
+    if (!output_file_okay) {
+        displayString(5, "FILE WRITE ERROR!");
+        wait1Msec(5000);
         return;
     }
 
@@ -567,6 +575,8 @@ task main()
     PID_controller pid_y;
     PID_Controller_reset(&pid_x);
     PID_Controller_reset(&pid_y);
+    writeTextPC(fout, "PID controllers created");
+    writeEndlPC(fout);
 
     // TODO: Tune Low-pass filter tau and calculate sample time
     pid_x.sample_time = pid_y.sample_time = 0.01;
@@ -574,6 +584,9 @@ task main()
     pid_x.tau = 0.00;
     pid_x.lim_min = pid_y.lim_min = -80.0;
     pid_x.lim_max = pid_y.lim_max = 80.0;
+    writeTextPC(fout, "PID values assigned");
+    writeEndlPC(fout);
+
 
     // TODO: Tune Constants
     pid_x.kp = 1;
@@ -582,12 +595,18 @@ task main()
     pid_y.kp = 1;
     pid_y.ki = 0;
     pid_y.kd = 0;
+    writeTextPC(fout, "PID k-values assigned");
+    writeEndlPC(fout);
 
     // ---- DRAWING LOOP ---- //
     // Read each contour
     string contour_name = "";
     while (readTextPC(fin, contour_name))
     {
+        writeTextPC(fout, "Processing Contour #");
+        writeTextPC(fout, contour_name);
+        writeEndlPC(fout);
+
         int contour_size = 0;
         readIntPC(fin, contour_size);
         for (int point = 0; point < contour_size; point++)
@@ -596,15 +615,24 @@ task main()
             bool is_draw = false;
             string move_or_draw = "";
             readTextPC(fin, move_or_draw);
+
             if (move_or_draw == "D")
             {
                 is_draw = true;
             }
+
             // Get target location
             float next_point[2] = {0,0};
             readFloatPC(fin, next_point[0]);
             readFloatPC(fin, next_point[1]);
+
             // Move to target location
+            writeTextPC(fout, "Moving to point: ");
+            writeFloatPC(fout, next_point[0]);
+            writeTextPC(fout, " ");
+            writeFloatPC(fout, next_point[1]);
+            writeEndlPC(fout);
+
             draw_PID(&pid_x, &pid_y, next_point, is_draw);
         }
     }
