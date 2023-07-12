@@ -579,7 +579,7 @@ task main()
     writeEndlPC(fout);
 
     // TODO: Tune Low-pass filter tau and calculate sample time
-    pid_x.sample_time = pid_y.sample_time = 0.01;
+    pid_x.sample_time = pid_y.sample_time = 0.005;
     pid_x.speed = pid_y.speed = 0.2;
     pid_x.tau = 0.00;
     pid_x.lim_min = pid_y.lim_min = -80.0;
