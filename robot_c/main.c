@@ -243,7 +243,7 @@ void zero(float* pos)
     pos[1] = 0;
 }
 // Moves pen into contact with page
-void pen_down()
+void pen_up()
 {
     // Setting motor to run forwards until distance is pen distance away from the page
     motor[motorD] = 25;
@@ -252,7 +252,7 @@ void pen_down()
     motor[motorD] = 0;
 }
 // Moves pen away from page
-void pen_up()
+void pen_down()
 {
     // Setting motor runs backwards until distance is backwards to 0mm
     motor[motorD] = -25;
@@ -546,6 +546,48 @@ void non_PID_main()
 // Actual main
 task main()
 {
+		float angle = 0;
+		int distance_time = 500;
+		while (angle < 360){
+			float motor_powers[2];
+			motor_powers[0] = 0;
+			motor_powers[1] = 0;
+
+			int max_power = 50;
+			calc_motor_power(angle, max_power, motor_powers);
+
+			int intMotorPowers[2] = {round(motor_powers[0]), round(motor_powers[1])};
+
+			motor[motorA] = intMotorPowers[0];
+			motor[motorD] = intMotorPowers[1];
+			wait1Msec(distance_time);
+			motor[motorA] = -intMotorPowers[0];
+			motor[motorD] = -intMotorPowers[1];
+			wait1Msec(distance_time);
+			angle += 30;
+		}
+		/*
+		motor[motorA] = motor[motorD] = 30;
+		wait1Msec(1000);
+		motor[motorA] = motor[motorD] = -30;
+		wait1Msec(1000);
+		pen_down();
+		motor[motorA] = motor[motorD] = 30;
+		wait1Msec(1000);
+		motor[motorA] = 0;
+		motor[motorD] = -30;
+		wait1Msec(1000);
+		motor[motorD] = 0;
+		motor[motorA] = motor[motorD] = -30;
+		wait1Msec(1000);
+		motor[motorD] = 30;
+		wait1Msec(1000);
+		motor[motorD] = 0;
+		motor[motorA] = 30;
+		wait1Msec(1000);
+		*///pen_up();
+
+		/*
     // ---- INITIALIZATION ---- //
     // Initialize Sensors
     initialize_sensors();
@@ -638,4 +680,5 @@ task main()
     }
     // close file
     closeFilePC(fin);
+    */
 }
