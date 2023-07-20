@@ -546,14 +546,20 @@ void non_PID_main()
 // Actual main
 task main()
 {
+	motor[motorD] = 15;
+	wait1Msec(2000);
+	motor[motorD] = -15;
+	wait1Msec(2000);
+	motor[motorD] = 0;
+	/*
 		float angle = 0;
-		int distance_time = 500;
+		int distance_time = 1500;
 		while (angle < 360){
 			float motor_powers[2];
 			motor_powers[0] = 0;
 			motor_powers[1] = 0;
 
-			int max_power = 50;
+			int max_power = 15;
 			calc_motor_power(angle, max_power, motor_powers);
 
 			int intMotorPowers[2] = {round(motor_powers[0]), round(motor_powers[1])};
@@ -565,7 +571,7 @@ task main()
 			motor[motorD] = -intMotorPowers[1];
 			wait1Msec(distance_time);
 			angle += 30;
-		}
+		} */
 		/*
 		motor[motorA] = motor[motorD] = 30;
 		wait1Msec(1000);
