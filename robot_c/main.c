@@ -39,6 +39,10 @@ typedef struct
 } PID_controller;
 
 // ------ FUNCTION PROTOTYPES ------ //
+
+//UI FUNCTIONS
+
+
 // CONVERSION FUNCTIONS
 float degrees_to_mm (int degrees, float gear_radius);
 float mm_to_degrees (float distance, float gear_radius);
