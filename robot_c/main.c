@@ -240,6 +240,7 @@ void zero(float* pos)
     //initialize inordinate 0, 0
     pos[0] = 0;
     pos[1] = 0;
+    nMotorEncoder[motorA] = nMotorEncoder[motorB] = 0;
 }
 // Moves pen up or down to page
 void move_pen_z(bool move_up)
@@ -283,8 +284,8 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
 
     */
     angle = deg_to_rad(angle);
-    motor_powers[0] = round(max_power * cos(angle));
-    motor_powers[1] = round(max_power * sin(angle));
+    motor_powers[0] = -round(max_power * cos(angle));
+    motor_powers[1] = -round(max_power * sin(angle));
 
     return;
 }
@@ -343,7 +344,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
+    float const POS_TOL = 0.25;  // pen move within 0.25mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
@@ -355,8 +356,10 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         // Get motor powers
         float motor_powers[2] = {0,0};
         float angle = calc_angle(current_pos, target_pos);
+        displayString(15, "%f is angle", angle);
         calc_motor_power(angle, max_draw_power, motor_powers);
 
+				displayString(10, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
         move_pen_z(false);
 
         // Move motors at power
@@ -506,6 +509,26 @@ void non_PID_main()
 
     // Input File Validation
     TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "custom_input.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1Msec(3000);
+        return;
+    }
+    // Input File Validation
+    TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "square.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1Msec(3000);
+        return;
+    }
+
+    // if (buttonPress corresponds to square):
+    	execute_file("square.txt");
+
+    // Input File Validation
+    TFileHandle fin;
     bool fileOkay = openReadPC(fin, "instructions.txt");
     if (!fileOkay) {
         displayString(5, "FILE READ ERROR!");
@@ -550,6 +573,11 @@ void non_PID_main()
 // Actual main
 task main()
 {
+	float pos[2] = {0,0};
+	//zero(pos);
+	float target_pos[2] = {50, 50};
+	draw_no_PID(target_pos, true, 30, 30);
+	/*
 	nMotorEncoder[motorA] = 0;
 	nMotorEncoder[motorD] = 0;
 	nMotorEncoder[motorB] = 0;
@@ -562,7 +590,7 @@ task main()
 	wait1Msec(1000);
 	motor[motorD] = 0;
 	move_pen_z(true);
-
+	*/
 	//float target[2] = {10, 10};
 	//draw_no_PID(target, false, 50, 50);
 	/*
