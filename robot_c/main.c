@@ -254,7 +254,6 @@ void move_pen_z(bool move_up)
 		{
 	    // Setting motor to run forwards until distance is pen distance away from the page
 	    motor[motorB] = -25;
-	    displayString(5, "moving pen up");
 	    //wait1MSec(100);
     	while(0 < nMotorEncoder[motorB])
     	{}
@@ -264,7 +263,6 @@ void move_pen_z(bool move_up)
 		{
 			// Setting motor runs backwards until distance is backwards to 0mm
     	motor[motorB] = 25;
-    	displayString(5, "moving_pen_down");
     	while(40 > nMotorEncoder[motorB])
 	    {}
 	    motor[motorB] = 0;
@@ -291,7 +289,6 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
     angle = deg_to_rad(angle);
     motor_powers[0] = -round(max_power * cos(angle));
     motor_powers[1] = -round(max_power * sin(angle));
-		displayString(2, "motor_powers is: &d &d", motor_powers[0],motor_powers[0]);
     return;
 }
 
@@ -350,7 +347,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 0.25;  // pen move within 0.25mm of actual target
+    float const POS_TOL = 0.5;  // pen move within 0.25mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
@@ -368,26 +365,24 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         displayString(15, "%f is angle", angle);
         calc_motor_power(angle, max_draw_power, motor_powers);
 
-				displayString(10, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
+				displayString(6, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
         move_pen_z(false);
         // Move motors at power
         motor[motorA] = motor_powers[0];
         motor[motorD] = motor_powers[1];
 
         // Keep moving motor until end position reached
-        while ((abs(current_pos[0] - actual_target[0]) < POS_TOL) || (abs(current_pos[1] - actual_target[1]) < POS_TOL))
+        while ((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL))
         {
             get_current_pos(current_pos);
-            displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
-            displayString(7, "%f %f current position", current_pos[0], current_pos[1]);
-            displayString(10, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
-            displayString(12, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
+            //displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
+            //displayString(10, "%f %f current position", current_pos[0], current_pos[1]);
+            displayString(8, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
+            //displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
         }
+
         motor[motorA] = motor[motorD] = 0;
-        displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
-        displayString(7, "%f %f current position", current_pos[0], current_pos[1]);
-        displayString(10, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
-        displayString(12, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
+        displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
         wait1Msec(10000);
 
         move_pen_z(true);
@@ -457,7 +452,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 
     // PID Loop
     time1[T1] = 0;
-    while ((abs(current_pos[0] - x_f) > POS_TOL) || (abs(current_pos[1] - y_f) > POS_TOL))
+    while ((abs(current_pos[0] - x_f) > POS_TOL) && (abs(current_pos[1] - y_f) > POS_TOL))
     {
         // get next point on motion profile
         float t = time1[T1] * pid_x->speed;
@@ -588,8 +583,8 @@ task main()
 	//float pos[2] = {0,0};
 	//zero(pos);
 	nMotorEncoder[motorA] = nMotorEncoder[motorD] = 0;
-	float target_pos[2] = {500, 500};
-	draw_no_PID(target_pos, true, 15, 15);
+	float target_pos[2] = {100, 100};
+	draw_no_PID(target_pos, true, 30, 30);
 
 	/*
 	nMotorEncoder[motorA] = 0;
