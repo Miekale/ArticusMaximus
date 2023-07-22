@@ -1,10 +1,10 @@
 #include "PC_FileIO.c"
 
 // Global Hardware Constants
-float const GEAR_RADIUS_X = 1;
-float const GEAR_RADIUS_Y = 1;
-float const GEAR_RADIUS_Z = 1;
-float const PEN_DISTANCE = 5;
+float const GEAR_RADIUS_X = 25.9; // mm
+float const GEAR_RADIUS_Y = 25.9;
+float const GEAR_RADIUS_Z = 13.081;
+float const PEN_DISTANCE = 1;
 
 // PID Controller
 typedef struct
@@ -61,8 +61,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 void initialize_sensors();
 void get_current_pos(float* mm_pos);
 void zero(float* pos);
-void pen_up();
-void pen_down();
+void move_pen_z();
 float calc_angle(float* pos_0, float* pos_1);
 void calc_motor_power(float angle, int max_power, float* motor_powers);
 void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_power);
@@ -209,9 +208,9 @@ void zero(float* pos)
 
     if (SensorValue[S2] == 1)
     {
-        motor[motorB] = -speed_initial;
+        motor[motorD] = -speed_initial;
         wait1Msec(1000);
-        motor[motorB] = 0;
+        motor[motorD] = 0;
     }
     //move x and y until they hit the touch sensor
     //x movement
@@ -229,40 +228,46 @@ void zero(float* pos)
     {}
     motor[motorA] = 0;
     //y movement
-    motor[motorB] = speed_initial;
+    motor[motorD] = speed_initial;
     while (!SensorValue[S2])
     {}
-    motor[motorB] = 0;
+    motor[motorD] = 0;
     wait1Msec(50);
-    motor[motorB] = -speed_final;
+    motor[motorD] = -speed_final;
     while (SensorValue[S2])
     {}
-    motor[motorB] = 0;
-    motor[motorB] = speed_final;
+    motor[motorD] = 0;
+    motor[motorD] = speed_final;
     while (!SensorValue[S2])
     {}
-    motor[motorB] = 0;
+    motor[motorD] = 0;
     //initialize inordinate 0, 0
     pos[0] = 0;
     pos[1] = 0;
+    nMotorEncoder[motorA] = nMotorEncoder[motorB] = 0;
 }
-// Moves pen into contact with page
-void pen_up()
+// Moves pen up or down to page
+void move_pen_z(bool move_up)
 {
-    // Setting motor to run forwards until distance is pen distance away from the page
-    motor[motorD] = 25;
-    while(PEN_DISTANCE > degrees_to_mm(nMotorEncoder[motorD], GEAR_RADIUS_Z))
-    {}
-    motor[motorD] = 0;
-}
-// Moves pen away from page
-void pen_down()
-{
-    // Setting motor runs backwards until distance is backwards to 0mm
-    motor[motorD] = -25;
-    while(0 < degrees_to_mm(nMotorEncoder[motorD], GEAR_RADIUS_Z))
-    {}
-    motor[motorD] = 0;
+		if (move_up)
+		{
+	    // Setting motor to run forwards until distance is pen distance away from the page
+	    motor[motorB] = -25;
+	    displayString(5, "moving pen up");
+	    //wait1MSec(100);
+    	while(0 < nMotorEncoder[motorB])
+    	{}
+      motor[motorB] = 0;
+		}
+		else
+		{
+			// Setting motor runs backwards until distance is backwards to 0mm
+    	motor[motorB] = 25;
+    	displayString(5, "moving_pen_down");
+    	while(40 > nMotorEncoder[motorB])
+	    {}
+	    motor[motorB] = 0;
+  	}
 }
 
 void calc_motor_power(float angle, int max_power, int* motor_powers)
@@ -283,8 +288,8 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
 
     */
     angle = deg_to_rad(angle);
-    motor_powers[0] = round(max_power * cos(angle));
-    motor_powers[1] = round(max_power * sin(angle));
+    motor_powers[0] = -round(max_power * cos(angle));
+    motor_powers[1] = -round(max_power * sin(angle));
 
     return;
 }
@@ -343,7 +348,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 0.1;  // pen move within 0.1mm of actual target
+    float const POS_TOL = 0.25;  // pen move within 0.25mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
@@ -355,9 +360,11 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         // Get motor powers
         float motor_powers[2] = {0,0};
         float angle = calc_angle(current_pos, target_pos);
+        displayString(15, "%f is angle", angle);
         calc_motor_power(angle, max_draw_power, motor_powers);
 
-        pen_down();
+				displayString(10, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
+        move_pen_z(false);
 
         // Move motors at power
         motor[motorA] = motor_powers[0];
@@ -369,7 +376,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
             get_current_pos(current_pos);
         }
 
-        pen_up();
+        move_pen_z(true);
     }
     // Moving mode
     else
@@ -426,7 +433,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
     starting_pos[0] = current_pos[0];
     starting_pos[1] = current_pos[1];
 
-    pen_down();
+    move_pen_z(true);
 
     // Motion profile
     float x_f = target_pos[0];
@@ -454,7 +461,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 
     // Turn off motors once target reached
     motor[motorA] = motor[motorD] = 0;
-    pen_up();
+    move_pen_z(true);
 
 }
 
@@ -506,6 +513,26 @@ void non_PID_main()
 
     // Input File Validation
     TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "custom_input.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1Msec(3000);
+        return;
+    }
+    // Input File Validation
+    TFileHandle fin;
+    bool fileOkay = openReadPC(fin, "square.txt");
+    if (!fileOkay) {
+        displayString(5, "FILE READ ERROR!");
+        wait1Msec(3000);
+        return;
+    }
+
+    // if (buttonPress corresponds to square):
+    	execute_file("square.txt");
+
+    // Input File Validation
+    TFileHandle fin;
     bool fileOkay = openReadPC(fin, "instructions.txt");
     if (!fileOkay) {
         displayString(5, "FILE READ ERROR!");
@@ -550,14 +577,41 @@ void non_PID_main()
 // Actual main
 task main()
 {
+	float pos[2] = {0,0};
+	//zero(pos);
+	float target_pos[2] = {50, 50};
+	draw_no_PID(target_pos, true, 30, 30);
+	/*
+	nMotorEncoder[motorA] = 0;
+	nMotorEncoder[motorD] = 0;
+	nMotorEncoder[motorB] = 0;
+
+	move_pen_z(false);
+	wait1Msec(1000);
+	motor[motorD] = 20;
+	wait1Msec(1000);
+	motor[motorD] = -20;
+	wait1Msec(1000);
+	motor[motorD] = 0;
+	move_pen_z(true);
+	*/
+	//float target[2] = {10, 10};
+	//draw_no_PID(target, false, 50, 50);
+	/*
+	motor[motorD] = 15;
+	wait1Msec(2000);
+	motor[motorD] = -15;
+	wait1Msec(2000);
+	motor[motorD] = 0;
+	*//*
 		float angle = 0;
-		int distance_time = 500;
+		int distance_time = 1500;
 		while (angle < 360){
 			float motor_powers[2];
 			motor_powers[0] = 0;
 			motor_powers[1] = 0;
 
-			int max_power = 50;
+			int max_power = 15;
 			calc_motor_power(angle, max_power, motor_powers);
 
 			int intMotorPowers[2] = {round(motor_powers[0]), round(motor_powers[1])};
@@ -569,7 +623,7 @@ task main()
 			motor[motorD] = -intMotorPowers[1];
 			wait1Msec(distance_time);
 			angle += 30;
-		}
+		} */
 		/*
 		motor[motorA] = motor[motorD] = 30;
 		wait1Msec(1000);
