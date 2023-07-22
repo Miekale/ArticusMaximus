@@ -96,6 +96,7 @@ void pos_mm_to_degree(float* mm_pos, float* deg_pos)
 }
 
 void pos_degree_to_mm(float* mm_pos, float* deg_pos) {
+		displayString(13, "pos_degree_to_mm accessed");
     mm_pos[0] = degrees_to_mm(deg_pos[0], GEAR_RADIUS_X);
     mm_pos[1] = degrees_to_mm(deg_pos[1], GEAR_RADIUS_Y);
 }
@@ -290,7 +291,7 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
     angle = deg_to_rad(angle);
     motor_powers[0] = -round(max_power * cos(angle));
     motor_powers[1] = -round(max_power * sin(angle));
-
+		displayString(2, "motor_powers is: &d &d", motor_powers[0],motor_powers[0]);
     return;
 }
 
@@ -329,6 +330,7 @@ float calc_angle(float* pos_0, float* pos_1)
         angle += 360;
     }
     // 1st Quadrant do nothing
+    // since (0,0) is top left of page need to flip angle
     return angle;
 }
 
@@ -354,6 +356,9 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     float current_pos[2] = {0, 0};
     get_current_pos(current_pos);
 
+    // make target position negative
+    float actual_target[2] = {target_pos[0] * -1, target_pos[1] * -1};
+
     // Drawing mode
     if (draw)
     {
@@ -365,16 +370,25 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 
 				displayString(10, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
         move_pen_z(false);
-
         // Move motors at power
         motor[motorA] = motor_powers[0];
         motor[motorD] = motor_powers[1];
 
         // Keep moving motor until end position reached
-        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
+        while ((abs(current_pos[0] - actual_target[0]) < POS_TOL) || (abs(current_pos[1] - actual_target[1]) < POS_TOL))
         {
             get_current_pos(current_pos);
+            displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
+            displayString(7, "%f %f current position", current_pos[0], current_pos[1]);
+            displayString(10, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
+            displayString(12, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
         }
+        motor[motorA] = motor[motorD] = 0;
+        displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
+        displayString(7, "%f %f current position", current_pos[0], current_pos[1]);
+        displayString(10, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
+        displayString(12, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
+        wait1Msec(10000);
 
         move_pen_z(true);
     }
@@ -520,25 +534,18 @@ void non_PID_main()
         return;
     }
     // Input File Validation
-    TFileHandle fin;
-    bool fileOkay = openReadPC(fin, "square.txt");
+    /*
+    TFileHandle file_in;
+    bool fileOkay = openReadPC(file_in, "square.txt");
     if (!fileOkay) {
         displayString(5, "FILE READ ERROR!");
         wait1Msec(3000);
         return;
     }
+    */
 
     // if (buttonPress corresponds to square):
-    	execute_file("square.txt");
-
-    // Input File Validation
-    TFileHandle fin;
-    bool fileOkay = openReadPC(fin, "instructions.txt");
-    if (!fileOkay) {
-        displayString(5, "FILE READ ERROR!");
-        wait1Msec(3000);
-        return;
-    }
+    	// execute_file("square.txt");
 
     // Initialize position and zero pen
     float pen_pos[2] = {0,0};
@@ -577,10 +584,13 @@ void non_PID_main()
 // Actual main
 task main()
 {
-	float pos[2] = {0,0};
+
+	//float pos[2] = {0,0};
 	//zero(pos);
-	float target_pos[2] = {50, 50};
-	draw_no_PID(target_pos, true, 30, 30);
+	nMotorEncoder[motorA] = nMotorEncoder[motorD] = 0;
+	float target_pos[2] = {500, 500};
+	draw_no_PID(target_pos, true, 15, 15);
+
 	/*
 	nMotorEncoder[motorA] = 0;
 	nMotorEncoder[motorD] = 0;
