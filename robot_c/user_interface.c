@@ -14,16 +14,13 @@ bool pointer_position(int & pointer)
 	 else if(getButtonPress(buttonUp))
 	   {
 			if(pointer > 1)
-			{
 				pointer--;
-			}
 			else
 				pointer = 3; //reset pointer back to 1 if in third option
 		 }
 		else if(getButtonPress(buttonEnter) && pointer == 3)
-		{
 			pointer = 0;
-		}
+
 		else if(getButtonPress(buttonEnter) && pointer!= 3)
 			return true;
 
@@ -87,12 +84,11 @@ task main()
 					else
 						dispShapes(pointer2);
 					run_code = pointer_position(pointer2);
-					wait1Msec(500);
+					wait1Msec(300);
 				}
 				eraseDisplay();
-				wait1Msec(500);
+				wait1Msec(300);
 		}
-
 		wait1Msec(300);
 	}
 }
