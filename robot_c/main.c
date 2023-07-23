@@ -1,8 +1,11 @@
 #include "PC_FileIO.c"
 
+// DEBUG
+TFileHandle fout;
+
 // Global Hardware Constants
-float const GEAR_RADIUS_X = 25.9; // mm
-float const GEAR_RADIUS_Y = 25.9;
+float const GEAR_RADIUS_X = 12.56; // mm
+float const GEAR_RADIUS_Y = 12.56;
 float const GEAR_RADIUS_Z = 13.081;
 float const PEN_DISTANCE = 1;
 
@@ -190,8 +193,8 @@ void initialize_sensors()
 void get_current_pos(float* mm_pos)
 {
     float deg_pos[2] = {0, 0};
-    deg_pos[0] = nMotorEncoder[motorA];
-    deg_pos[1] = nMotorEncoder[motorD];
+    deg_pos[0] = -nMotorEncoder[motorA];
+    deg_pos[1] = -nMotorEncoder[motorD];
     pos_degree_to_mm(mm_pos, deg_pos);
 }
 // Zero pen x, y, z
@@ -287,8 +290,8 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
 
     */
     angle = deg_to_rad(angle);
-    motor_powers[0] = -round(max_power * cos(angle));
-    motor_powers[1] = -round(max_power * sin(angle));
+    motor_powers[0] = round(max_power * cos(angle));
+    motor_powers[1] = round(max_power * sin(angle));
     return;
 }
 
@@ -307,10 +310,36 @@ float calc_angle(float* pos_0, float* pos_1)
     -------
     angle: float degrees between the two points
     */
-
-    float delta_x = pos_1[0] - pos_0[0];
-    float delta_y = pos_1[1] - pos_0[1];
-    float angle = rad_to_deg(atan(delta_y / delta_x));
+    // 0 0
+    // 0 30
+    // 30 0
+    float delta_x = pos_1[0] - pos_0[0]; // 30 - 0 = 30
+    float delta_y = pos_1[1] - pos_0[1]; // 0 - 30 = -30
+    float angle = 0;
+    // Debug
+    writeFloatPC(fout, "%f ", pos_0[0]);
+    writeFloatPC(fout, "%f starting point", pos_0[1]);
+    writeEndlPC(fout);
+    writeFloatPC(fout, "%f ", pos_1[0]);
+    writeFloatPC(fout, "%f ending point", pos_1[1]);
+    writeEndlPC(fout);
+    // Vertical lines
+    if (delta_x == 0)
+    {
+    		if (delta_x > 0)
+    		{
+    			angle = 270;
+    		}
+    		else
+    		{
+    			angle = 90;
+    		}
+            // Debug
+    		writeFloatPC(fout, "returned angle: %.2f", angle);
+    		return angle;
+  	}
+  	// Non vertical lines
+    angle = rad_to_deg(atan(delta_y / delta_x));
     // 2nd Quadrant
     if (delta_y > 0 && delta_x < 0)
     {
@@ -327,7 +356,8 @@ float calc_angle(float* pos_0, float* pos_1)
         angle += 360;
     }
     // 1st Quadrant do nothing
-    // since (0,0) is top left of page need to flip angle
+    // Debug
+    writeFloatPC(fout, "returned angle: %.2f", angle);
     return angle;
 }
 
@@ -347,14 +377,14 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 0.5;  // pen move within 0.25mm of actual target
+    float const POS_TOL = 1;  // pen move within 0.25mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
     get_current_pos(current_pos);
 
     // make target position negative
-    float actual_target[2] = {target_pos[0] * -1, target_pos[1] * -1};
+    float actual_target[2] = {target_pos[0] * 1, target_pos[1] * 1};
 
     // Drawing mode
     if (draw)
@@ -362,29 +392,31 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         // Get motor powers
         float motor_powers[2] = {0,0};
         float angle = calc_angle(current_pos, target_pos);
-        displayString(15, "%f is angle", angle);
+
         calc_motor_power(angle, max_draw_power, motor_powers);
 
 				displayString(6, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
         move_pen_z(false);
+
+        // Debug
+        displayString(3, "%f target angle", angle);
+        displayString(6, "%f %f motor powers", motor_powers[0], motor_powers[1]);
+        displayString(9, "%f %f target position", actual_target[0], actual_target[1]);
+        displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
+        wait1Msec(2000);
+
         // Move motors at power
-        motor[motorA] = motor_powers[0];
-        motor[motorD] = motor_powers[1];
+        motor[motorA] = -motor_powers[0];
+        motor[motorD] = -motor_powers[1];
 
         // Keep moving motor until end position reached
         while ((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL))
         {
             get_current_pos(current_pos);
-            //displayString(8, "%f %f taret position", actual_target[0], actual_target[1]);
-            //displayString(10, "%f %f current position", current_pos[0], current_pos[1]);
-            displayString(8, "%d %d current angle", nMotorEncoder[motorA], nMotorEncoder[motorD]);
-            //displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
         }
 
         motor[motorA] = motor[motorD] = 0;
         displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
-        wait1Msec(10000);
-
         move_pen_z(true);
     }
     // Moving mode
@@ -404,7 +436,8 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
             get_current_pos(current_pos);
         }
         motor[motorD] = 0;
-    }
+  	}
+  	wait1Msec(10000);
     return;
 }
 
@@ -579,12 +612,18 @@ void non_PID_main()
 // Actual main
 task main()
 {
-
+	openWritePC(fout, "debug_output.txt");
 	//float pos[2] = {0,0};
 	//zero(pos);
 	nMotorEncoder[motorA] = nMotorEncoder[motorD] = 0;
-	float target_pos[2] = {100, 100};
-	draw_no_PID(target_pos, true, 30, 30);
+	float p_1[2] = {0, 30};
+	float p_2[2] = {30, 0};
+
+	draw_no_PID(p_1, true, 15, 15);
+	wait1Msec(1000);
+
+	draw_no_PID(p_2, true, 15, 15);
+	wait1Msec(1000);
 
 	/*
 	nMotorEncoder[motorA] = 0;
@@ -744,4 +783,5 @@ task main()
     // close file
     closeFilePC(fin);
     */
+    closeFilePC(fout);
 }
