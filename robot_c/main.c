@@ -4,8 +4,8 @@
 TFileHandle fout;
 
 // Global Hardware Constants
-float const GEAR_RADIUS_X = 12.56; // mm
-float const GEAR_RADIUS_Y = 12.56;
+float const GEAR_RADIUS_X = 11.93; // mm
+float const GEAR_RADIUS_Y = 11.93;
 float const GEAR_RADIUS_Z = 13.081;
 float const PEN_DISTANCE = 1;
 
@@ -64,7 +64,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 void initialize_sensors();
 void get_current_pos(float* mm_pos);
 void zero(float* pos);
-void move_pen_z();
+void move_pen_z(bool move_up);
 float calc_angle(float* pos_0, float* pos_1);
 void calc_motor_power(float angle, int max_power, float* motor_powers);
 void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_power);
@@ -248,7 +248,9 @@ void zero(float* pos)
     //initialize inordinate 0, 0
     pos[0] = 0;
     pos[1] = 0;
-    nMotorEncoder[motorA] = nMotorEncoder[motorB] = 0;
+
+    nMotorEncoder[motorA] = 0;
+    nMotorEncoder[motorD] = -168;
 }
 // Moves pen up or down to page
 void move_pen_z(bool move_up)
@@ -377,7 +379,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 2;  // pen move within 2mm of actual target
+    float const POS_TOL = 3;  // pen move within 2mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
@@ -405,14 +407,45 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
         //wait1Msec(2000);
 
+        // Keep moving motor until end position reached
+        bool x_passed_target = false;
+        float x_0 = current_pos[0];
+        bool y_passed_target = false;
+        float y_0 = current_pos[1];
+
         // Move motors at power
         motor[motorA] = -motor_powers[0];
         motor[motorD] = -motor_powers[1];
 
-        // Keep moving motor until end position reached
-        while ((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL))
+        while (((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL) && !x_passed_target && !y_passed_target)
         {
-            get_current_pos(current_pos);
+        		get_current_pos(current_pos);
+
+        		if (x_0 > actual_target[0] && actual_target[0] - current_pos[0] > POS_TOL)
+        		{
+        				x_passed_target = true;
+        				writeTextPC(fout, "PASSED TARGETx1");
+        				break;
+        		}
+        		else if (x_0 < actual_target[0] && current_pos[0] - actual_target[0] > POS_TOL)
+        		{
+        				x_passed_target = true;
+        				writeTextPC(fout, "PASSED TARGETx2");
+        				break;
+        		}
+
+        		if (y_0 > actual_target[1] && actual_target[1] - current_pos[1] > POS_TOL)
+        		{
+        				y_passed_target = true;
+        				writeTextPC(fout, "PASSED TARGETy1");
+        				break;
+        		}
+        		else if (y_0 < actual_target[1] && current_pos[1] - actual_target[1] > POS_TOL)
+        		{
+        				y_passed_target = true;
+        				writeTextPC(fout, "PASSED TARGETy2");
+        				break;
+        		}
             displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
         		displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
         }
@@ -426,16 +459,47 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     {
         // Move x motor until target
         move_pen_z(true);
-        motor[motorA] = max_move_power;
-        while ((abs(current_pos[0] - target_pos[0]) > POS_TOL))
+        if (current_pos[0] < actual_target[0])
+      	{
+        		motor[motorA] = -max_move_power;
+      	}
+      	else if (current_pos[0] > actual_target[0])
+      	{
+        		motor[motorA] = max_move_power;
+      	}
+        else
+      	{
+      			motor[motorA] = 0;
+      	}
+
+        while ((abs(current_pos[0] - actual_target[0]) > POS_TOL))
         {
+        		displayString(5, "%f target position", actual_target[0]);
+        		displayString(7, "%f current position", current_pos[0]);
+        		displayString(9, "%f DIFFERENCE", abs(current_pos[0] - actual_target[0]));
             get_current_pos(current_pos);
         }
         motor[motorA] = 0;
-        motor[motorD] = max_move_power;
+
         // Move y motor until target
-        while ((abs(current_pos[0] - target_pos[1]) > POS_TOL))
+        if (current_pos[1] < actual_target[1])
+      	{
+        		motor[motorD] = -max_move_power;
+      	}
+      	else if (current_pos[1] > actual_target[1])
+      	{
+        		motor[motorD] = max_move_power;
+      	}
+        else
+      	{
+      			motor[motorD] = 0;
+      	}
+
+        while ((abs(current_pos[1] - actual_target[1]) > POS_TOL))
         {
+        		displayString(5, "%f target position", actual_target[1]);
+        		displayString(7, "%f current position", current_pos[1]);
+        		displayString(9, "%f DIFFERENCE", abs(current_pos[1] - actual_target[1]));
             get_current_pos(current_pos);
         }
         motor[motorD] = 0;
@@ -548,9 +612,11 @@ int main()
 
 void draw_image_from_file_no_PID(string file_name)
 {
+		int const MAX_DRAW_POWER = 13;
+		int const MAX_MOVE_POWER = 20;
     // Input File Validation
     TFileHandle fin;
-    bool fileOkay = openReadPC(fin, "custom_input.txt");
+    bool fileOkay = openReadPC(fin, file_name);
     if (!fileOkay) {
         displayString(5, "FILE READ ERROR!");
         wait1Msec(3000);
@@ -563,31 +629,30 @@ void draw_image_from_file_no_PID(string file_name)
     move_pen_z(false);
 
     // ---- DRAWING LOOP ---- //
-    // Read each contour
-    string contour_name = "";
-    while (readTextPC(fin, contour_name))
-    {
-        int contour_size = 0;
-        readIntPC(fin, contour_size);
-        for (int point = 0; point < contour_size; point++)
-        {
-            // Determine if D (draw) or M (move)
-            bool is_draw = false;
-            string move_or_draw = "";
-            readTextPC(fin, move_or_draw);
-            if (move_or_draw == "D")
-            {
-                is_draw = true;
-            }
+    // Read line-by-line
+   	string move_or_draw;
+    while (readTextPC(fin, move_or_draw))
+  	{
+  			// Read next point
+  			float next_point[2] = {0,0};
+  			readFloatPC(fin, next_point[0]);
+  			readFloatPC(fin, next_point[1]);
 
-            // Get target location
-            float next_point[2] = {0,0};
-            readFloatPC(fin, next_point[0]);
-            readFloatPC(fin, next_point[1]);
+  			// Update boolean move or draw depending on input
+  			bool is_draw = false;
+  			if (move_or_draw == "D")
+  			{
+  					is_draw = true;
+  			}
 
-            // Move to target location
-            draw_no_PID(next_point, is_draw, 80, 80);
-        }
+  			// Move to point
+  			draw_no_PID(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
+  			writeTextPC(fout, move_or_draw);
+  			writeTextPC(fout, " ");
+  			writeFloatPC(fout, next_point[0]);
+  			writeTextPC(fout, " ");
+  			writeFloatPC(fout, next_point[1]);
+  			writeEndlPC(fout);
     }
     // close file
     closeFilePC(fin);
@@ -598,7 +663,28 @@ void draw_image_from_file_no_PID(string file_name)
 // Actual main
 task main()
 {
+	/*
+	initialize_sensors();
+	float p_1[2] = {0, 0};
+
+	zero(p_1);
+	wait1Msec(1000);
+	move_pen_z(false);
+	float p_2[2] = {100, 0};
+	float p_3[2] = {100, 100};
+	draw_no_PID(p_2, false, 5, 5);
+	draw_no_PID(p_3, false, 5, 5);
+	//draw_no_PID(p_1, false, 5, 15);
+	*/
+
+
+	initialize_sensors();
 	openWritePC(fout, "debug_output.txt");
+	string file_name = "contour_output.txt";
+	draw_image_from_file_no_PID(file_name);
+
+
+	/*
 	//float pos[2] = {0,0};
 	//zero(pos);
 	nMotorEncoder[motorA] = nMotorEncoder[motorD] = 0;
@@ -615,10 +701,7 @@ task main()
 	draw_no_PID(p_3, true, 5, 15);
 
 	draw_no_PID(p_4, true, 5, 15);
-
-
-
-
+	*/
 	/*
 	nMotorEncoder[motorA] = 0;
 	nMotorEncoder[motorD] = 0;
@@ -703,7 +786,7 @@ task main()
         wait1Msec(5000);
         return;
     }
-
+		/////////////////////////////////////////////
     // Initialize position and zero pen
     float pen_pos[2] = {0,0};
     zero(pen_pos);

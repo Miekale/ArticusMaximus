@@ -107,7 +107,7 @@ contours, hierarchy = cv2.findContours(canny_blur,
     cv2.RETR_TREE , cv2.CHAIN_APPROX_SIMPLE)
 
 # Epsilon value for Douglas Peucker algorithm, bigger == less details
-epsilon = 1
+epsilon = 5
 
 # Filter out small contours and duplicate contours
 contours = list(contours)
@@ -150,7 +150,7 @@ for i in range(len(contours)):
 
 
 # Write contours to file
-f = open("contour_output.txt", 'w')
+f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\contour_output.txt", 'w')
 for contour in contours:
     for i in range(len(contour)):
         if i == 0:
@@ -159,7 +159,7 @@ for contour in contours:
             f.write("D ")
         f.write(str(contour[i, 0]))
         f.write(" ")
-        f.write(str(contour[i, 1]))
+        f.write(str(contour[i, 1] + 30))
         f.write(" \n")
 f.close()
 
