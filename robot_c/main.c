@@ -311,8 +311,8 @@ float calc_angle(float* pos_0, float* pos_1)
     angle: float degrees between the two points
     */
     // 0 0
-    // 0 30
-    // 30 0
+    // 0 -30
+    // 0 -30
     float delta_x = pos_1[0] - pos_0[0]; // 30 - 0 = 30
     float delta_y = pos_1[1] - pos_0[1]; // 0 - 30 = -30
     float angle = 0;
@@ -326,7 +326,7 @@ float calc_angle(float* pos_0, float* pos_1)
     // Vertical lines
     if (delta_x == 0)
     {
-    		if (delta_x > 0)
+    		if (delta_y < 0)
     		{
     			angle = 270;
     		}
@@ -377,7 +377,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
     -------
     void
     */
-    float const POS_TOL = 1;  // pen move within 0.25mm of actual target
+    float const POS_TOL = 2;  // pen move within 2mm of actual target
 
     // Initialize starting positions
     float current_pos[2] = {0, 0};
@@ -403,7 +403,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         displayString(6, "%f %f motor powers", motor_powers[0], motor_powers[1]);
         displayString(9, "%f %f target position", actual_target[0], actual_target[1]);
         displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
-        wait1Msec(2000);
+        //wait1Msec(2000);
 
         // Move motors at power
         motor[motorA] = -motor_powers[0];
@@ -413,16 +413,19 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
         while ((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL))
         {
             get_current_pos(current_pos);
+            displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
+        		displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
         }
 
         motor[motorA] = motor[motorD] = 0;
         displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
-        move_pen_z(true);
+
     }
     // Moving mode
     else
     {
         // Move x motor until target
+        move_pen_z(true);
         motor[motorA] = max_move_power;
         while ((abs(current_pos[0] - target_pos[0]) > POS_TOL))
         {
@@ -436,8 +439,8 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
             get_current_pos(current_pos);
         }
         motor[motorD] = 0;
+        move_pen_z(false);
   	}
-  	wait1Msec(10000);
     return;
 }
 
@@ -465,7 +468,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
     }
 
     // Pen move until within 0.1mm of actual target
-    float const POS_TOL = 0.1;
+    float const POS_TOL = 0.2;
 
     // Initialize starting positions
     float motor_powers[2] = {0,0};
@@ -474,8 +477,6 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
     get_current_pos(current_pos);
     starting_pos[0] = current_pos[0];
     starting_pos[1] = current_pos[1];
-
-    move_pen_z(true);
 
     // Motion profile
     float x_f = target_pos[0];
@@ -503,8 +504,6 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 
     // Turn off motors once target reached
     motor[motorA] = motor[motorD] = 0;
-    move_pen_z(true);
-
 }
 
 /*
@@ -547,7 +546,7 @@ int main()
 }
 */
 
-void non_PID_main()
+void draw_image_from_file_no_PID()
 {
     // ---- INITIALIZATION ---- //
     // Initialize Sensors
@@ -561,23 +560,11 @@ void non_PID_main()
         wait1Msec(3000);
         return;
     }
-    // Input File Validation
-    /*
-    TFileHandle file_in;
-    bool fileOkay = openReadPC(file_in, "square.txt");
-    if (!fileOkay) {
-        displayString(5, "FILE READ ERROR!");
-        wait1Msec(3000);
-        return;
-    }
-    */
-
-    // if (buttonPress corresponds to square):
-    	// execute_file("square.txt");
 
     // Initialize position and zero pen
     float pen_pos[2] = {0,0};
     zero(pen_pos);
+    move_pen_z(false);
 
     // ---- DRAWING LOOP ---- //
     // Read each contour
@@ -608,7 +595,10 @@ void non_PID_main()
     }
     // close file
     closeFilePC(fin);
+    move_pen_z(true);
 }
+
+
 // Actual main
 task main()
 {
@@ -617,13 +607,21 @@ task main()
 	//zero(pos);
 	nMotorEncoder[motorA] = nMotorEncoder[motorD] = 0;
 	float p_1[2] = {0, 30};
-	float p_2[2] = {30, 0};
+	float p_2[2] = {30, 30};
+	float p_3[2] = {30, 0};
+	float p_4[2] = {0, -30};
+	float p_5[2] = {0, 0};
 
-	draw_no_PID(p_1, true, 15, 15);
-	wait1Msec(1000);
+	draw_no_PID(p_1, true, 5, 15);
 
-	draw_no_PID(p_2, true, 15, 15);
-	wait1Msec(1000);
+	draw_no_PID(p_2, true, 5, 15);
+
+	draw_no_PID(p_3, true, 5, 15);
+
+	draw_no_PID(p_4, true, 5, 15);
+
+
+
 
 	/*
 	nMotorEncoder[motorA] = 0;
