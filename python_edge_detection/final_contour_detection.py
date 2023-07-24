@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 #Resizing Image
-image = cv2.imread(r"/home/miekale/Documents/github/ArticusMaximus/python_edge_detection/sample_images/amogus.png")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_images\amogus.png")
 h, w = image.shape[:2]
 aspect = h/w
 image = cv2.resize(image, (400, int(400 * aspect)), interpolation=cv2.INTER_AREA)
@@ -147,14 +147,11 @@ plt.xlim(0, w / 2)
 plt.ylim(0, h / 2)
 for i in range(len(contours)):
     plt.plot(contours[i][:,0], contours[i][:,1], label=f'{i}')
-plt.show()
+
 
 # Write contours to file
 f = open("contour_output.txt", 'w')
-k = 0
 for contour in contours:
-    f.write(f'CONTOUR_{k} {str(contour.shape[0])}\n')
-    k += 1
     for i in range(len(contour)):
         if i == 0:
             f.write("M ")
@@ -164,5 +161,6 @@ for contour in contours:
         f.write(" ")
         f.write(str(contour[i, 1]))
         f.write(" \n")
-
 f.close()
+
+plt.show()
