@@ -7,8 +7,8 @@ image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_
 h, w = image.shape[:2]
 aspect = h/w
 image = cv2.resize(image, (400, int(400 * aspect)), interpolation=cv2.INTER_AREA)
-if image.shape[0] > 500:
-    image = cv2.resize(image, (int(550 / aspect), 550) , interpolation=cv2.INTER_AREA)
+if image.shape[0] > 400:
+    image = cv2.resize(image, (int(400 / aspect), 400) , interpolation=cv2.INTER_AREA)
 
 
 #Filtering

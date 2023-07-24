@@ -546,12 +546,8 @@ int main()
 }
 */
 
-void draw_image_from_file_no_PID()
+void draw_image_from_file_no_PID(string file_name)
 {
-    // ---- INITIALIZATION ---- //
-    // Initialize Sensors
-    initialize_sensors();
-
     // Input File Validation
     TFileHandle fin;
     bool fileOkay = openReadPC(fin, "custom_input.txt");
