@@ -92,23 +92,28 @@ bool movePointer(int &pointer, int options)
 	{
 		if (pointer < options)
 			pointer++;
+		//loop back to the first option
 		else
-			pointer = 1; //look back to the first option
+			pointer = 1;
 	}
-	else if (getButtonPress(buttonUp)) //up button is pressed
+	//move the currently selected option up
+	else if (getButtonPress(buttonUp))
 	{
 		if (pointer > 1)
 			pointer--;
+	//loop back to the last option
 		else
-			pointer = options; //loop back to the last option
+			pointer = options;
 	}
-	else if (getButtonPress(buttonEnter) && pointer == options)//last option is for exit
+	//set pointer to 0 if user presses enter to exit menu
+	else if (getButtonPress(buttonEnter) && pointer == options)
 		pointer = 0;
-
+	//return true to go into the desired sub menu
 	else if (getButtonPress(buttonEnter) && pointer!= options)
-		return true; //return true to go into a sub menu based on pointer's position
+		return true;
 
-	return false; //return false to continue moving the pointer
+	//return false to continue moving the pointer
+	return false;
 }
 
 void dispMain(int pointer)
@@ -121,7 +126,7 @@ void dispMain(int pointer)
 	displayString(10, "Currently selected: %d", pointer);
 }
 
-//create a function for each display
+//create a
 void dispFiles(int pointer)
 {
 	displayString(3, "Please select a file: ");
@@ -776,17 +781,19 @@ task main()
 
 task main()
 {
-	const int HOLDTIME = 300; // delay time in milleseconds
+	//delay time for EV3 in milleseconds
+	const int HOLDTIME = 300;
 
 	initialize_sensors();
 
-	// pointer to select the windows option
+	//initializing option pointer
 	int pointer = 1;
+	//number of actions in main menu
 	int main_option = 3;
 
 	while (pointer != 0)
 	{
-		bool sub_menu = false; //condition to load any sub menu
+		bool sub_menu = false;
 		dispMain(pointer);
 		sub_menu = movePointer(pointer, main_option);
 		if (sub_menu)
@@ -820,7 +827,7 @@ task main()
 
 					if(pointer == 1)
 					{
-						displayString(5, "%s", fileNames[sub_pointer - 1]);
+						draw_image_from_file_no_PID(fileNames[sub_pointer - 1]);
 						displayString(7, "Press enter to return back");
 						while(!getButtonPress(buttonEnter))
 						{}
