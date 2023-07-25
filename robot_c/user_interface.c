@@ -1,4 +1,3 @@
-const int HOLDTIME = 300; // delay time in milleseconds
 const int MAX_FILES = 4;
 const int MAX_SHAPES = 2;
 
@@ -7,6 +6,11 @@ const string shapeArray[MAX_SHAPES] = {"Square", "Circle"};
 
 const string fileNames[MAX_FILES] = {"file1.txt", "file2.txt", "file3.txt", "file4.txt"};
 const string shapeNames[MAX_SHAPES] = {"shape1.txt", "shape2.txt"};
+
+bool movePointer(int &pointer, int options);
+void dispMain(int pointer);
+void dispShapes(int pointer);
+void dispFiles(int pointer);
 
 bool movePointer(int &pointer, int options)
 {
@@ -46,7 +50,7 @@ void dispMain(int pointer)
 }
 
 //create a function for each display
-void dispFiles(int pointer,)
+void dispFiles(int pointer)
 {
 	displayString(3, "Please select a file: ");
 
@@ -73,6 +77,7 @@ void dispShapes(int pointer)
 
 task main()
 {
+    const int HOLDTIME = 300; // delay time in milleseconds
 
 	// pointer to select the windows option
 	int pointer = 1;
