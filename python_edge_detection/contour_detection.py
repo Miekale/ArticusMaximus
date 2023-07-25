@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 #Resizing Image
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_images\amogus.png")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_images\jonesy.png")
 h, w = image.shape[:2]
 aspect = h/w
 image = cv2.resize(image, (400, int(400 * aspect)), interpolation=cv2.INTER_AREA)

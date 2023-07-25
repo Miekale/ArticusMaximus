@@ -3,10 +3,10 @@ import numpy as np
 import cv2
 
 #Resizing Image
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_images\amogus.png")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
 h, w = image.shape[:2]
 aspect = h/w
-image = cv2.resize(image, (400, int(400 * aspect)), interpolation=cv2.INTER_AREA)
+image = cv2.resize(image, (360, int(360 * aspect)), interpolation=cv2.INTER_AREA)
 if image.shape[0] > 400:
     image = cv2.resize(image, (int(400 / aspect), 400) , interpolation=cv2.INTER_AREA)
 
@@ -79,7 +79,6 @@ def remove_small_contours(contours:list, min_points_thresh:int):
             contours.pop(i)
             print(f'{i} contour dropped')
         i += 1
-    
     return contours
 
 def remove_duplicate_contours(contours, match_thresh, pixel_thresh):
@@ -107,7 +106,7 @@ contours, hierarchy = cv2.findContours(canny_blur,
     cv2.RETR_TREE , cv2.CHAIN_APPROX_SIMPLE)
 
 # Epsilon value for Douglas Peucker algorithm, bigger == less details
-epsilon = 5
+EPSILON = 1
 
 # Filter out small contours and duplicate contours
 contours = list(contours)
@@ -122,7 +121,7 @@ while (i < len(contours)):
     # Remove any two points that are the same & next to each other
     contours[i] = remove_duplicate_points(contours[i])
     # Douglas Peucker Algorithm
-    contours[i] = Douglas_Peucker(contours[i], epsilon)
+    contours[i] = Douglas_Peucker(contours[i], EPSILON)
     # Close contour (connect back to starting point)
     contours[i][-1] = contours[i][0]
     # Remove any duplicates resulting from Douglas Peucker
@@ -139,6 +138,9 @@ h, w = image.shape[:2]
 
 for contour in range(len(contours)):
     for point in range(len(contours[contour])):
+        print(f'len contours: {len(contours)}')
+        print(f'len contours[contour]: {len(contours[contour])}')
+        print(f'{contours[contour][point]}')
         contours[contour][point] = [contours[contour][point][0] / 2, abs(contours[contour][point][1] - h) / 2]
 
 

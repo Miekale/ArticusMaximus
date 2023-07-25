@@ -13,11 +13,11 @@ float const PEN_DISTANCE = 1;
 const int MAX_FILES = 4;
 const int MAX_SHAPES = 2;
 
-const string fileArray[MAX_FILES] = {"File 1", "File 2", "File 3", "File 4"};
+const string fileArray[MAX_FILES] = {"Among Us", "NASSAR GOAT", "Custom File 3", "Custom File 4"};
 const string shapeArray[MAX_SHAPES] = {"Square", "Circle"};
 
-const string fileNames[MAX_FILES] = {"file1.txt", "file2.txt", "file3.txt", "file4.txt"};
-const string shapeNames[MAX_SHAPES] = {"shape1.txt", "shape2.txt"};
+const string fileNames[MAX_FILES] = {"amongus.txt", "goat.txt", "contour_output_3.txt", "contour_output_4.txt"};
+const string shapeNames[MAX_SHAPES] = {"square.txt", "circle.txt"};
 
 // PID Controller
 typedef struct
@@ -77,7 +77,7 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 // ROBOTC MOVEMENT FUNCTIONS
 void initialize_sensors();
 void get_current_pos(float* mm_pos);
-void zero(float* pos);
+void zero();
 void move_pen_z(bool move_up);
 float calc_angle(float* pos_0, float* pos_1);
 void calc_motor_power(float angle, int max_power, float* motor_powers);
@@ -176,7 +176,6 @@ void pos_mm_to_degree(float* mm_pos, float* deg_pos)
 }
 
 void pos_degree_to_mm(float* mm_pos, float* deg_pos) {
-	displayString(13, "pos_degree_to_mm accessed");
 	mm_pos[0] = degrees_to_mm(deg_pos[0], GEAR_RADIUS_X);
 	mm_pos[1] = degrees_to_mm(deg_pos[1], GEAR_RADIUS_Y);
 }
@@ -274,7 +273,7 @@ void get_current_pos(float* mm_pos)
 	pos_degree_to_mm(mm_pos, deg_pos);
 }
 // Zero pen x, y, z
-void zero(float* pos)
+void zero()
 {
 	int const speed_initial = 20;
 	int const speed_final = 10;
@@ -282,14 +281,14 @@ void zero(float* pos)
 	if (SensorValue[S1] == 1)
 	{
 		motor[motorA] = -speed_initial;
-		wait1Msec(1000);
+		wait1Msec(250);
 		motor[motorA] = 0;
 	}
 
 	if (SensorValue[S2] == 1)
 	{
 		motor[motorD] = -speed_initial;
-		wait1Msec(1000);
+		wait1Msec(250);
 		motor[motorD] = 0;
 	}
 	//move x and y until they hit the touch sensor
@@ -321,12 +320,10 @@ void zero(float* pos)
 	while (!SensorValue[S2])
 	{}
 	motor[motorD] = 0;
-	//initialize inordinate 0, 0
-	pos[0] = 0;
-	pos[1] = 0;
 
+	// Set motor encoder positioning
 	nMotorEncoder[motorA] = 0;
-	nMotorEncoder[motorD] = -168;
+	nMotorEncoder[motorD] = 0;
 }
 // Moves pen up or down to page
 void move_pen_z(bool move_up)
@@ -453,7 +450,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 	-------
 	void
 	*/
-	float const POS_TOL = 3;  // pen move within 2mm of actual target
+	float const POS_TOL = 1;  // pen move within 1mm of actual target
 
 	// Initialize starting positions
 	float current_pos[2] = {0, 0};
@@ -475,10 +472,10 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 		move_pen_z(false);
 
 		// Debug
-		displayString(3, "%f target angle", angle);
-		displayString(6, "%f %f motor powers", motor_powers[0], motor_powers[1]);
-		displayString(9, "%f %f target position", actual_target[0], actual_target[1]);
-		displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
+		//displayString(3, "%f target angle", angle);
+		//displayString(6, "%f %f motor powers", motor_powers[0], motor_powers[1]);
+		//displayString(9, "%f %f target position", actual_target[0], actual_target[1]);
+		//displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
 		//wait1Msec(2000);
 
 		// Keep moving motor until end position reached
@@ -491,7 +488,7 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 		motor[motorA] = -motor_powers[0];
 		motor[motorD] = -motor_powers[1];
 
-		while (((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL) && !x_passed_target && !y_passed_target)
+		while (((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL)) && !x_passed_target && !y_passed_target)
 		{
 			get_current_pos(current_pos);
 
@@ -520,8 +517,8 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 				writeTextPC(fout, "PASSED TARGETy2");
 				break;
 			}
-			displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
-			displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
+			//displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
+			//displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
 		}
 
 		motor[motorA] = motor[motorD] = 0;
@@ -658,8 +655,7 @@ void draw_image_from_file_no_PID(string file_name)
 	}
 
 	// Initialize position and zero pen
-	float pen_pos[2] = {0,0};
-	zero(pen_pos);
+	zero();
 	move_pen_z(false);
 
 	// ---- DRAWING LOOP ---- //
@@ -680,6 +676,7 @@ void draw_image_from_file_no_PID(string file_name)
 		}
 
 		// Move to point
+		displayString(5, "drawing points");
 		draw_no_PID(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
 		writeTextPC(fout, move_or_draw);
 		writeTextPC(fout, " ");
@@ -691,14 +688,14 @@ void draw_image_from_file_no_PID(string file_name)
 	// close file
 	closeFilePC(fin);
 	move_pen_z(true);
+	zero();
 }
 
 void temp_PID_main(string file_name)
 {
 	/*
 	// Initialize position and zero pen
-	float pen_pos[2] = {0,0};
-	zero(pen_pos);
+	zero();
 
 	// Create controller
 	PID_controller pid_x;
@@ -827,7 +824,8 @@ task main()
 
 					if(pointer == 1)
 					{
-						draw_image_from_file_no_PID(fileNames[sub_pointer - 1]);
+						string temp_file = fileNames[sub_pointer - 1];
+						draw_image_from_file_no_PID(temp_file);
 						displayString(7, "Press enter to return back");
 						while(!getButtonPress(buttonEnter))
 						{}
@@ -835,7 +833,8 @@ task main()
 
 					else
 					{
-						displayString(5, "%s", shapeNames[sub_pointer - 1]);
+						string temp_file = shapeNames[sub_pointer - 1];
+						draw_image_from_file_no_PID(temp_file);
 						displayString(7, "Press enter to return back");
 						while(!getButtonPress(buttonEnter))
 						{}

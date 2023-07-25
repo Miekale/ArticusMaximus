@@ -13,9 +13,6 @@
       <change beforePath="$PROJECT_DIR$/../python_edge_detection/contour_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python_edge_detection/contour_detection.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../python_edge_detection/contour_output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../python_edge_detection/contour_output.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../python_edge_detection/final_contour_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python_edge_detection/final_contour_detection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +70,7 @@
       <workItem from="1688738847711" duration="1819000" />
       <workItem from="1688835342497" duration="594000" />
       <workItem from="1690256643173" duration="1042000" />
+      <workItem from="1690290986216" duration="46000" />
     </task>
     <servers />
   </component>
