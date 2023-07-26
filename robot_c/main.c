@@ -46,6 +46,10 @@ void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move
 void draw_image_from_file(string file_name);
 
 // ------ FUNCTION DEFINITIONS ------ //
+// changes the location of the currently selected option or pointer
+// based on what button users press
+// This function returns true if user presses
+// enter to indicate to move into a different menu or exit the code.
 bool movePointer(int &pointer, int options)
 {
 	while (!getButtonPress(buttonAny))
@@ -58,7 +62,7 @@ bool movePointer(int &pointer, int options)
 		else
 			pointer = 1;
 	}
-	//move the currently selected option up
+	//allows users to select the previous option
 	else if (getButtonPress(buttonUp))
 	{
 		if (pointer > 1)
@@ -73,11 +77,11 @@ bool movePointer(int &pointer, int options)
 	//return true to go into the desired sub menu
 	else if (getButtonPress(buttonEnter) && pointer!= options)
 		return true;
-
 	//return false to continue moving the pointer
 	return false;
 }
 
+// displays the main menu on the EV3 screen
 void dispMain(int pointer)
 {
 	displayString(3, "-----ARTICUS MAXIMUS-----");
@@ -88,7 +92,7 @@ void dispMain(int pointer)
 	displayString(10, "Currently selected: %d", pointer);
 }
 
-//create a
+//displays the list of drawing files that the robot can draw
 void dispFiles(int pointer)
 {
 	displayString(3, "Please select a file: ");
@@ -100,6 +104,7 @@ void dispFiles(int pointer)
 	displayString(12, "Currently selected: %d", pointer);
 }
 
+//displays a list of pre-built basic shapes that the robot can draw
 void dispShapes(int pointer)
 {
 	displayString(3, "Please select a basic shape: ");
@@ -521,28 +526,35 @@ task main()
 
 	initialize_sensors();
 
-	//initializing option pointer
+	//a pointer is a number that denotes what menu option is currently selected
 	int pointer = 1;
 	//number of actions in main menu
 	int main_option = 3;
 
+	// pointer == 0 when user chooses to exit the main menu
 	while (pointer != 0)
 	{
 		bool sub_menu = false;
 		dispMain(pointer);
 		sub_menu = movePointer(pointer, main_option);
+
+		//movePointer returns true if user selects on a sub-menu option
 		if (sub_menu)
 		{
+			//a new pointer is declared to navigate through the sub-menu
 			int sub_pointer = 1;
 			eraseDisplay();
 			wait1Msec(HOLDTIME);
 			bool run_code = false;
+
+			//this uses similar logic as the main pointer;
 			while(sub_pointer != 0)
 			{
 				int sub_options = 0;
 
 				if(pointer == 1)
 				{
+					//the amount of sub options is based on the size of the constant array of file names
 					sub_options = MAX_FILES + 1;
 					dispFiles(sub_pointer);
 				}
@@ -564,26 +576,22 @@ task main()
 					{
 						string temp_file = fileNames[sub_pointer - 1];
 						draw_image_from_file(temp_file);
-						displayString(7, "Press enter to return back");
-						while(!getButtonPress(buttonEnter))
-						{}
 					}
-
 					else
 					{
 						string temp_file = shapeNames[sub_pointer - 1];
 						draw_image_from_file(temp_file);
-						displayString(7, "Press enter to return back");
-						while(!getButtonPress(buttonEnter))
-						{}
 					}
+					displayString(7, "Press enter to return back");
+					while(!getButtonPress(buttonEnter))
+					{}
 					eraseDisplay();
-				}
+				} // if(run_code) ends
 				wait1Msec(HOLDTIME);
-			} //while ends
+			} //while(sub_pointer != 0) ends
 			eraseDisplay();
 			wait1Msec(HOLDTIME);
-		}
+		} // if(sub_menu) ends
 		wait1Msec(HOLDTIME);
-	}
+		}
 }
