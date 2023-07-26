@@ -496,26 +496,22 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 			{
 				x_passed_target = true;
 				writeTextPC(fout, "PASSED TARGETx1");
-				break;
 			}
 			else if (x_0 < actual_target[0] && current_pos[0] - actual_target[0] > POS_TOL)
 			{
 				x_passed_target = true;
 				writeTextPC(fout, "PASSED TARGETx2");
-				break;
 			}
 
 			if (y_0 > actual_target[1] && actual_target[1] - current_pos[1] > POS_TOL)
 			{
 				y_passed_target = true;
 				writeTextPC(fout, "PASSED TARGETy1");
-				break;
 			}
 			else if (y_0 < actual_target[1] && current_pos[1] - actual_target[1] > POS_TOL)
 			{
 				y_passed_target = true;
 				writeTextPC(fout, "PASSED TARGETy2");
-				break;
 			}
 			//displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
 			//displayString(17, "%f %f current position", current_pos[0], current_pos[1]);

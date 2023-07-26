@@ -2,26 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-#Resizing Image
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
-h, w = image.shape[:2]
-aspect = h/w
-image = cv2.resize(image, (360, int(360 * aspect)), interpolation=cv2.INTER_AREA)
-if image.shape[0] > 400:
-    image = cv2.resize(image, (int(400 / aspect), 400) , interpolation=cv2.INTER_AREA)
-
-
-#Filtering
-thresh_lower = 30
-thresh_upper = 150
-aperture_size = 7  # Aperture size
-
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-blur = cv2.GaussianBlur(gray, (5,5), sigmaX=0, sigmaY=0)
-canny_blur = cv2.Canny(blur, thresh_lower, thresh_upper, aperture_size)
-
-
-
 #Functions:
 def perp_distance(pstart, pend, point):
 
@@ -103,6 +83,29 @@ def remove_duplicate_contours(contours, match_thresh, pixel_thresh):
         i += 1
     
     return contours
+
+def detect_edges(image, blur_kernel, thresh_lower, thresh_upper, aperature_size):
+    # Greyscales, gaussian blurs, and performs canny edge detection on image 
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, blur_kernel, sigmaX=0, sigmaY=0)
+    canny_blur = cv2.Canny(blur, thresh_lower, thresh_upper, aperature_size)
+
+    return canny_blur 
+
+def resize_image(image, max_width, max_height):
+    h, w = image.shape[:2]
+    aspect = h/w
+    image = cv2.resize(image, (max_width, int(max_width * aspect)), interpolation=cv2.INTER_AREA)
+    if image.shape[0] > max_height:
+        image = cv2.resize(image, (int(max_height / aspect), max_height) , interpolation=cv2.INTER_AREA)
+    
+    return image 
+
+# Pre-processing 
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\cursed_crop.jpg")
+image = resize_image(image, max_width=360, max_height=400)
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=150, aperature_size=7)
+
 
 
 # Find contours from canny blurred image
