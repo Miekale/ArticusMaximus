@@ -467,12 +467,11 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 		float angle = calc_angle(current_pos, target_pos);
 
 		calc_motor_power(angle, max_draw_power, motor_powers);
-
-		displayString(6, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
 		move_pen_z(false);
 
 		// Debug
 		//displayString(3, "%f target angle", angle);
+		//displayString(6, "%d and %d is motor_powers", motor_powers[0], motor_powers[1]);
 		//displayString(6, "%f %f motor powers", motor_powers[0], motor_powers[1]);
 		//displayString(9, "%f %f target position", actual_target[0], actual_target[1]);
 		//displayString(12, "%f %f current position", current_pos[0], current_pos[1]);
@@ -518,8 +517,6 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 		}
 
 		motor[motorA] = motor[motorD] = 0;
-		displayString(14, "%d %d DIFFERENCE", abs(current_pos[0] - actual_target[0]), abs(current_pos[1] - actual_target[1]));
-
 	}
 	// Moving mode
 	else
@@ -541,9 +538,10 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 
 		while ((abs(current_pos[0] - actual_target[0]) > POS_TOL))
 		{
-			displayString(5, "%f target position", actual_target[0]);
-			displayString(7, "%f current position", current_pos[0]);
-			displayString(9, "%f DIFFERENCE", abs(current_pos[0] - actual_target[0]));
+			// Debug
+			//displayString(5, "%f target position", actual_target[0]);
+			//displayString(7, "%f current position", current_pos[0]);
+			//displayString(9, "%f DIFFERENCE", abs(current_pos[0] - actual_target[0]));
 			get_current_pos(current_pos);
 		}
 		motor[motorA] = 0;
@@ -564,9 +562,10 @@ void draw_no_PID(float* target_pos, bool draw, int max_draw_power, int max_move_
 
 		while ((abs(current_pos[1] - actual_target[1]) > POS_TOL))
 		{
-			displayString(5, "%f target position", actual_target[1]);
-			displayString(7, "%f current position", current_pos[1]);
-			displayString(9, "%f DIFFERENCE", abs(current_pos[1] - actual_target[1]));
+			// Debug
+			//displayString(5, "%f target position", actual_target[1]);
+			//displayString(7, "%f current position", current_pos[1]);
+			//displayString(9, "%f DIFFERENCE", abs(current_pos[1] - actual_target[1]));
 			get_current_pos(current_pos);
 		}
 		motor[motorD] = 0;
@@ -672,14 +671,16 @@ void draw_image_from_file_no_PID(string file_name)
 		}
 
 		// Move to point
-		displayString(5, "drawing points");
 		draw_no_PID(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
+		// Output file debug
+		/*
 		writeTextPC(fout, move_or_draw);
 		writeTextPC(fout, " ");
 		writeFloatPC(fout, next_point[0]);
 		writeTextPC(fout, " ");
 		writeFloatPC(fout, next_point[1]);
 		writeEndlPC(fout);
+		*/
 	}
 	// close file
 	closeFilePC(fin);
