@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 #Resizing Image
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\cursed_crop.jpg")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
 h, w = image.shape[:2]
 aspect = h/w
 image = cv2.resize(image, (360, int(360 * aspect)), interpolation=cv2.INTER_AREA)
@@ -12,9 +12,9 @@ if image.shape[0] > 400:
 
 
 #Filtering
-thresh_lower = 10
-thresh_upper = 100
-aperture_size = 3  # Aperture size
+thresh_lower = 30
+thresh_upper = 150
+aperture_size = 7  # Aperture size
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 blur = cv2.GaussianBlur(gray, (5,5), sigmaX=0, sigmaY=0)
