@@ -13,10 +13,10 @@ float const PEN_DISTANCE = 1;
 const int MAX_FILES = 4;
 const int MAX_SHAPES = 2;
 
-const string fileArray[MAX_FILES] = {"Among Us", "NASSAR GOAT", "Best Artist Alive", "people"};
+const string fileArray[MAX_FILES] = {"Gojo", "NASSAR GOAT", "Fortnite", "bts"};
 const string shapeArray[MAX_SHAPES] = {"Square", "Circle"};
 
-const string fileNames[MAX_FILES] = {"amongus.txt", "goat.txt", "losttherons.txt", "mark.txt"};
+const string fileNames[MAX_FILES] = {"gojo.txt", "goat.txt", "jonesy.txt", "bts.txt"};
 const string shapeNames[MAX_SHAPES] = {"square.txt", "circle.txt"};
 
 // ------ FUNCTION PROTOTYPES ------ //

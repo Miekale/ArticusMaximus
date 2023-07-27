@@ -102,9 +102,9 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"/home/miekale/Downloads/creature.png")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\sponge.png")
 image = resize_image(image, max_width=360, max_height=400)
-canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=10, thresh_upper=140, aperature_size=3)
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=10, thresh_upper=150, aperature_size=3)
 
 
 # Find contours from canny blurred image
@@ -112,7 +112,7 @@ contours, hierarchy = cv2.findContours(canny_blur,
     cv2.RETR_TREE , cv2.CHAIN_APPROX_SIMPLE)
 
 # Epsilon value for Douglas Peucker algorithm, bigger == less details
-EPSILON = 1
+EPSILON = 0.5
 
 # Filter out small contours and duplicate contours
 contours = list(contours)
@@ -148,7 +148,7 @@ for contour in range(len(contours)):
         contours[contour][point] = [contours[contour][point][0] / 2, contours[contour][point][1] / 2]
 
 # Write contours to file
-f = open(r"/home/miekale/Documents/github/ArticusMaximus/python_edge_detection/contour_output.txt", 'w')
+f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\contour_output.txt", 'w')
 for contour in contours:
     for i in range(len(contour)):
         if i == 0:
