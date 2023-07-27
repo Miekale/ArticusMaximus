@@ -102,7 +102,7 @@ bool movePointer(int &pointer, int options)
 	{
 		if (pointer > 1)
 			pointer--;
-	//loop back to the last option
+		//loop back to the last option
 		else
 			pointer = options;
 	}
@@ -322,23 +322,23 @@ float PID_controller_update(PID_controller *pid, float set_point, float measurem
 
 	if (pid->lim_max > proportional)
 	{
-		lim_max_int = pid->lim_max - proportional;
+	lim_max_int = pid->lim_max - proportional;
 	}
 	if (pid->lim_min < proportional)
 	{
-		lim_min_int = pid->lim_min - proportional;
+	lim_min_int = pid->lim_min - proportional;
 	}
 
 	// Limit integrator value
 	if (pid->integrator < lim_min_int)
 	{
-		pid->integrator = lim_min_int;
+	pid->integrator = lim_min_int;
 	}
 	if (pid->integrator > lim_max_int)
 	{
-		pid->integrator = lim_min_int;
-	}*/
-
+	pid->integrator = lim_min_int;
+	}
+	*/
 	// Derivative (low pass filter)
 	pid->differentiator = (2.0 * pid->kd *(measurement - pid->prev_measurement) + (2.0 * pid->tau - pid->sample_time) * pid->differentiator) / (2.0 * pid->tau + pid->sample_time);
 
@@ -402,68 +402,120 @@ void draw_PID(PID_controller* pid_x, PID_controller* pid_y, float* target_pos, b
 	// PID Loop
 	time1[T1] = 0;
 	time1[T2] = 0;
-
-	while ((abs(current_pos[0] - target_pos[0]) > POS_TOL) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
+	if (draw == true)
 	{
-		// get next point on motion profile
-		float t = time1[T1] * pid_x->speed;
-		float x_t = x_i + (x_f - x_i) * t;
-		float y_t = y_i + (y_f - y_i) * t;
-
-		if (x_i > x_f && x_f - x_t > 0)
+		while ((abs(current_pos[0] - target_pos[0]) > POS_TOL) || (abs(current_pos[1] - target_pos[1]) > POS_TOL))
 		{
-			x_t = x_f;
-			writeTextPC(fout, "PASSED TARGETx1");
-		}
-		else if (x_i < x_f && x_t - x_f > 0)
-		{
-			x_t = x_f;
-			writeTextPC(fout, "PASSED TARGETx2");
-		}
+			// get next point on motion profile
+			float t = time1[T1] * pid_x->speed;
+			float x_t = x_i + (x_f - x_i) * t;
+			float y_t = y_i + (y_f - y_i) * t;
 
-		if (y_i > y_f && y_f - y_t > 0)
-		{
-			y_t = y_f;
-			writeTextPC(fout, "PASSED TARGETy1");
+			if (x_i > x_f && x_f - x_t > 0)
+			{
+				x_t = x_f;
+				writeTextPC(fout, "PASSED TARGETx1");
+			}
+			else if (x_i < x_f && x_t - x_f > 0)
+			{
+				x_t = x_f;
+				writeTextPC(fout, "PASSED TARGETx2");
+			}
+
+			if (y_i > y_f && y_f - y_t > 0)
+			{
+				y_t = y_f;
+				writeTextPC(fout, "PASSED TARGETy1");
+			}
+			else if (y_i < y_f && y_t - y_f > 0)
+			{
+				y_t = y_f;
+				writeTextPC(fout, "PASSED TARGETy2");
+			}
+
+			writeTextPC(fout, "target position: ");
+			writeFloatPC(fout, x_t);
+			writeTextPC(fout, " ");
+			writeFloatPC(fout, y_t);
+			writeEndlPC(fout);
+
+			// update PID controllers
+			PID_controller_update(pid_x, x_t, current_pos[0]);
+			PID_controller_update(pid_y, y_t, current_pos[1]);
+			writeTextPC(fout, "mA");
+			writeFloatPC(fout, -pid_x->output);
+			writeTextPC(fout, " mD");
+			writeFloatPC(fout, -pid_x->output);
+			motor[motorA] = -pid_x->output;
+			motor[motorD] = -pid_y->output;
+
+			wait1Msec(pid_x->sample_time);
+			float run_t = time1[T2];
+			//writeTextPC(fout, " time:");
+			//writeFloatPC(fout, run_t);
+			// update current position for loop condition
+			get_current_pos(current_pos);
+			PID_controller_log(pid_x, fout);
+			motor[motorA] = motor[motorD] = 0;
 		}
-		else if (y_i < y_f && y_t - y_f > 0)
-		{
-			y_t = y_f;
-			writeTextPC(fout, "PASSED TARGETy2");
-		}
-
-		writeTextPC(fout, "target position: ");
-		writeFloatPC(fout, x_t);
-		writeTextPC(fout, " ");
-		writeFloatPC(fout, y_t);
-		writeEndlPC(fout);
-
-		// update PID controllers
-		PID_controller_update(pid_x, x_t, current_pos[0]);
-		PID_controller_update(pid_y, y_t, current_pos[1]);
-		writeTextPC(fout, "mA");
-		writeFloatPC(fout, -pid_x->output);
-		writeTextPC(fout, " mD");
-		writeFloatPC(fout, -pid_x->output);
-		motor[motorA] = -pid_x->output;
-		motor[motorD] = -pid_y->output;
-
-		wait1Msec(pid_x->sample_time);
-		float run_t = time1[T2];
-		//writeTextPC(fout, " time:");
-		//writeFloatPC(fout, run_t);
-		// update current position for loop condition
-		get_current_pos(current_pos);
-		PID_controller_log(pid_x, fout);
 	}
-
-	// Turn off motors once target reached
-	motor[motorA] = motor[motorD] = 0;
-	if (draw == false)
+	else
 	{
+		// Move x motor until target
+		move_pen_z(true);
+
+		if (current_pos[0] < target_pos[0])
+		{
+			motor[motorA] = -20;
+		}
+		else if (current_pos[0] > target_pos[0])
+		{
+			motor[motorA] = 20;
+		}
+		else
+		{
+			motor[motorA] = 0;
+		}
+
+		while ((abs(current_pos[0] - target_pos[0]) > POS_TOL))
+		{
+			// Debug
+			//displayString(5, "%f target position", actual_target[0]);
+			//displayString(7, "%f current position", current_pos[0]);
+			//displayString(9, "%f DIFFERENCE", abs(current_pos[0] - actual_target[0]));
+			get_current_pos(current_pos);
+		}
+		motor[motorA] = 0;
+
+		// Move y motor until target
+		if (current_pos[1] < target_pos[1])
+		{
+			motor[motorD] = -20;
+		}
+		else if (current_pos[1] > target_pos[1])
+		{
+			motor[motorD] = 20;
+		}
+		else
+		{
+			motor[motorD] = 0;
+		}
+
+		while ((abs(current_pos[1] - target_pos[1]) > POS_TOL))
+		{
+			// Debug
+			//displayString(5, "%f target position", actual_target[1]);
+			//displayString(7, "%f current position", current_pos[1]);
+			//displayString(9, "%f DIFFERENCE", abs(current_pos[1] - actual_target[1]));
+			get_current_pos(current_pos);
+		}
+		motor[motorD] = 0;
 		move_pen_z(false);
 	}
+	return;
 }
+
+
 
 void draw_pid_from_file(string file_name)
 {
@@ -478,20 +530,20 @@ void draw_pid_from_file(string file_name)
 
 	// TODO: Tune Low-pass filter tau and calculate sample time
 	pid_x.sample_time = pid_y.sample_time = 10; //ms
-	pid_x.speed = pid_y.speed = 0.0005;
-	pid_x.tau = pid_y.tau = 0.00;
-	pid_x.lim_min = pid_y.lim_min = -40.0;
-	pid_x.lim_max = pid_y.lim_max = 40.0;
+	pid_x.speed = pid_y.speed = 0.001;
+	pid_x.tau = pid_y.tau = 0.4;
+	pid_x.lim_min = pid_y.lim_min = -70.0;
+	pid_x.lim_max = pid_y.lim_max = 70.0;
 	writeTextPC(fout, "PID values assigned");
 	writeEndlPC(fout);
 
 	// TODO: Tune Constants
 	pid_x.kp = 5;
 	pid_x.ki = 0.01;
-	pid_x.kd = 0;
+	pid_x.kd = 1;
 	pid_y.kp = 5;
 	pid_y.ki = 0.01;
-	pid_y.kd = 0;
+	pid_y.kd = 1;
 	writeTextPC(fout, "PID k-values assigned");
 	writeEndlPC(fout);
 
@@ -540,85 +592,86 @@ void draw_pid_from_file(string file_name)
 task main()
 {
 	openWritePC(fout, "debug_output.txt");
-	string file_name = "goat.txt";
+	string file_name = "amongus.txt";
 	draw_pid_from_file(file_name);
 	closeFilePC(fout);
 	move_pen_z(true);
+	zero();
 }
 
 /*
 task main()
 {
-	//delay time for EV3 in milleseconds
-	const int HOLDTIME = 300;
+//delay time for EV3 in milleseconds
+const int HOLDTIME = 300;
 
-	initialize_sensors();
+initialize_sensors();
 
-	//initializing option pointer
-	int pointer = 1;
-	//number of actions in main menu
-	int main_option = 3;
+//initializing option pointer
+int pointer = 1;
+//number of actions in main menu
+int main_option = 3;
 
-	while (pointer != 0)
-	{
-		bool sub_menu = false;
-		dispMain(pointer);
-		sub_menu = movePointer(pointer, main_option);
-		if (sub_menu)
-		{
-			int sub_pointer = 1;
-			eraseDisplay();
-			wait1Msec(HOLDTIME);
-			bool run_code = false;
-			while(sub_pointer != 0)
-			{
-				int sub_options = 0;
+while (pointer != 0)
+{
+bool sub_menu = false;
+dispMain(pointer);
+sub_menu = movePointer(pointer, main_option);
+if (sub_menu)
+{
+int sub_pointer = 1;
+eraseDisplay();
+wait1Msec(HOLDTIME);
+bool run_code = false;
+while(sub_pointer != 0)
+{
+int sub_options = 0;
 
-				if(pointer == 1)
-				{
-					sub_options = MAX_FILES + 1;
-					dispFiles(sub_pointer);
-				}
+if(pointer == 1)
+{
+sub_options = MAX_FILES + 1;
+dispFiles(sub_pointer);
+}
 
-				else
-				{
-					sub_options = MAX_SHAPES + 1;
-					dispShapes(sub_pointer);
-				}
+else
+{
+sub_options = MAX_SHAPES + 1;
+dispShapes(sub_pointer);
+}
 
-				run_code = movePointer(sub_pointer, sub_options);
+run_code = movePointer(sub_pointer, sub_options);
 
-				if(run_code)
-				{
-					eraseDisplay();
-					wait1Msec(HOLDTIME);
+if(run_code)
+{
+eraseDisplay();
+wait1Msec(HOLDTIME);
 
-					if(pointer == 1)
-					{
-						string temp_file = fileNames[sub_pointer - 1];
-						draw_pid_from_file(temp_file);
-						displayString(7, "Press enter to return back");
-						while(!getButtonPress(buttonEnter))
-						{}
-					}
+if(pointer == 1)
+{
+string temp_file = fileNames[sub_pointer - 1];
+draw_pid_from_file(temp_file);
+displayString(7, "Press enter to return back");
+while(!getButtonPress(buttonEnter))
+{}
+}
 
-					else
-					{
-						string temp_file = shapeNames[sub_pointer - 1];
-						draw_pid_from_file(temp_file);
-						displayString(7, "Press enter to return back");
-						while(!getButtonPress(buttonEnter))
-						{}
-					}
-					eraseDisplay();
-				}
-				wait1Msec(HOLDTIME);
-			} //while ends
-			eraseDisplay();
-			wait1Msec(HOLDTIME);
-		}
-		wait1Msec(HOLDTIME);
-	}
+else
+{
+string temp_file = shapeNames[sub_pointer - 1];
+draw_pid_from_file(temp_file);
+displayString(7, "Press enter to return back");
+while(!getButtonPress(buttonEnter))
+{}
+}
+eraseDisplay();
+}
+wait1Msec(HOLDTIME);
+} //while ends
+eraseDisplay();
+wait1Msec(HOLDTIME);
+}
+wait1Msec(HOLDTIME);
+}
 }
 */
 
@@ -626,51 +679,51 @@ task main()
 /*
 void draw_image_from_file_no_PID(string file_name)
 {
-	int const MAX_DRAW_POWER = 13;
-	int const MAX_MOVE_POWER = 20;
-	// Input File Validation
-	TFileHandle fin;
-	bool fileOkay = openReadPC(fin, file_name);
-	if (!fileOkay) {
-		displayString(5, "FILE READ ERROR!");
-		wait1Msec(3000);
-		return;
-	}
+int const MAX_DRAW_POWER = 13;
+int const MAX_MOVE_POWER = 20;
+// Input File Validation
+TFileHandle fin;
+bool fileOkay = openReadPC(fin, file_name);
+if (!fileOkay) {
+displayString(5, "FILE READ ERROR!");
+wait1Msec(3000);
+return;
+}
 
-	// Initialize position and zero pen
-	zero();
-	move_pen_z(false);
+// Initialize position and zero pen
+zero();
+move_pen_z(false);
 
-	// ---- DRAWING LOOP ---- //
-	// Read line-by-line
-	string move_or_draw;
-	while (readTextPC(fin, move_or_draw))
-	{
-		// Read next point
-		float next_point[2] = {0,0};
-		readFloatPC(fin, next_point[0]);
-		readFloatPC(fin, next_point[1]);
+// ---- DRAWING LOOP ---- //
+// Read line-by-line
+string move_or_draw;
+while (readTextPC(fin, move_or_draw))
+{
+// Read next point
+float next_point[2] = {0,0};
+readFloatPC(fin, next_point[0]);
+readFloatPC(fin, next_point[1]);
 
-		// Update boolean move or draw depending on input
-		bool is_draw = false;
-		if (move_or_draw == "D")
-		{
-			is_draw = true;
-		}
+// Update boolean move or draw depending on input
+bool is_draw = false;
+if (move_or_draw == "D")
+{
+is_draw = true;
+}
 
-		// Move to point
-		displayString(5, "drawing points");
-		draw_no_PID(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
-		writeTextPC(fout, move_or_draw);
-		writeTextPC(fout, " ");
-		writeFloatPC(fout, next_point[0]);
-		writeTextPC(fout, " ");
-		writeFloatPC(fout, next_point[1]);
-		writeEndlPC(fout);
-	}
-	// close file
-	closeFilePC(fin);
-	move_pen_z(true);
-	zero();
+// Move to point
+displayString(5, "drawing points");
+draw_no_PID(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
+writeTextPC(fout, move_or_draw);
+writeTextPC(fout, " ");
+writeFloatPC(fout, next_point[0]);
+writeTextPC(fout, " ");
+writeFloatPC(fout, next_point[1]);
+writeEndlPC(fout);
+}
+// close file
+closeFilePC(fin);
+move_pen_z(true);
+zero();
 }
 */
