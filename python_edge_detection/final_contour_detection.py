@@ -7,11 +7,9 @@ def perp_distance(pstart, pend, point):
 
     vectoru = np.array([point[0] - pstart[0], point[1] - pstart[1]])
     vectorv = np.array([pend[0] - pstart[0], pend[1] - pstart[1]])
-
     
     #finding  projection vector
     v_norm = np.sqrt(vectorv[0]**2 + vectorv[1]**2)
-
     
     proj_u_on_v = np.array([np.dot(vectoru, vectorv) / v_norm**2 * vectorv[0], np.dot(vectoru, vectorv) / v_norm**2 * vectorv[1]])
 
@@ -39,14 +37,10 @@ def Douglas_Peucker(points:np.array, epsilon:int):
 
     #for all points find distance and set dmax if largest
     for i, value in enumerate(points):
-        if points[0].all() == points[len(points) - 1].all():
-            vectoru = np.array([points[0][0] - points[0][0], points[0][1] - points[0][1]])
-            return np.sqrt(vectoru[0]**2 + vectoru[1]**2)
-        else:
-            distance = perp_distance(points[0], points[len(points)-1], points[i])
-            if distance > dmax:
-                dmax = distance
-                index = i
+        distance = perp_distance(points[0], points[len(points)-1], points[i])
+        if distance > dmax:
+            dmax = distance
+            index = i
     result_list = np.array([])
 
     #recursive algorithm
@@ -108,7 +102,7 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"/home/miekale/Downloads/dora.png")
+image = cv2.imread(r"/home/miekale/Documents/github/ArticusMaximus/python_edge_detection/sample_img/amogus.png")
 image = resize_image(image, max_width=360, max_height=400)
 canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=200, aperature_size=3)
 
