@@ -28,7 +28,6 @@ def remove_duplicate_points(contour):
             num_deleted += 1
         i += 1
     return contour
-            
 
 def Douglas_Peucker(points:np.array, epsilon:int):
     #max distance and index of the distance
@@ -102,10 +101,12 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\cursed_crop.jpg")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
 image = resize_image(image, max_width=360, max_height=400)
-canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=150, aperature_size=7)
-
+cv2.imshow("gray", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=200, aperature_size=3)
 
 
 # Find contours from canny blurred image
@@ -139,27 +140,17 @@ while (i < len(contours)):
 contours = remove_small_contours(contours, 2)
 contours = remove_duplicate_contours(contours, 0.05, 10)
 
-
-#Reflecting Image
 h, w = image.shape[:2]
-
+#Reflecting Image
 for contour in range(len(contours)):
     for point in range(len(contours[contour])):
         print(f'len contours: {len(contours)}')
         print(f'len contours[contour]: {len(contours[contour])}')
         print(f'{contours[contour][point]}')
-        contours[contour][point] = [contours[contour][point][0] / 2, abs(contours[contour][point][1] - h) / 2]
-
-
-# Display results 
-plt.xlim(0, w / 2)
-plt.ylim(0, h / 2)
-for i in range(len(contours)):
-    plt.plot(contours[i][:,0], contours[i][:,1], label=f'{i}')
-
+        contours[contour][point] = [contours[contour][point][0] / 2, contours[contour][point][1] / 2]
 
 # Write contours to file
-f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\contour_output.txt", 'w')
+f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\mckale_da_goat.png", 'w')
 for contour in contours:
     for i in range(len(contour)):
         if i == 0:
@@ -171,5 +162,21 @@ for contour in contours:
         f.write(str(contour[i, 1] + 30))
         f.write(" \n")
 f.close()
+
+
+#Reflecting image vertically
+for contour in range(len(contours)):
+    for point in range(len(contours[contour])):
+        print(f'len contours: {len(contours)}')
+        print(f'len contours[contour]: {len(contours[contour])}')
+        print(f'{contours[contour][point]}')
+        contours[contour][point] = [contours[contour][point][0], abs(h/2 - contours[contour][point][1])]
+
+# Display vertically flipped results 
+plt.xlim(0, 200)
+plt.ylim(0, 200)
+for i in range(len(contours)):
+    print(contours[i])
+    plt.plot(contours[i][:,0], contours[i][:,1], label=f'{i}')
 
 plt.show()
