@@ -102,9 +102,9 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\sponge.png")
+image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
 image = resize_image(image, max_width=360, max_height=400)
-canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=10, thresh_upper=150, aperature_size=3)
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=200, aperature_size=3)
 
 
 # Find contours from canny blurred image
