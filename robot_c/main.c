@@ -250,11 +250,11 @@ void calc_motor_power(float angle, int max_power, int* motor_powers)
 	----------
 	angle: float, radians, horizontal from [1,0] of between start and end points
 	max_power: int, positive < 100, maximum power allowed.
-	motor_powers: int array[power x, power y], reference output.
+	motor_powers: int array[power x, power y], the pass-by-reference output.
 
 	RETURNS
 	-------
-	motor_powers: int array[power x, power y]
+	void
 
 	*/
 	angle = deg_to_rad(angle);
@@ -267,7 +267,7 @@ float calc_angle(float* pos_0, float* pos_1)
 {
 	/*
 	Calculates angle (degrees) between two points,
-	relative to [1, 0] vector.
+	counterclockwise relative to [1, 0] vector.
 
 	PARAMETERS
 	----------
@@ -276,12 +276,12 @@ float calc_angle(float* pos_0, float* pos_1)
 
 	RETURNS
 	-------
-	angle: float degrees between the two points
+	angle: float, degrees between the two points
 	*/
-
 	float delta_x = pos_1[0] - pos_0[0]; // 30 - 0 = 30
 	float delta_y = pos_1[1] - pos_0[1]; // 0 - 30 = -30
 	float angle = 0;
+
 	// Debug
 	writeFloatPC(fout, "%f ", pos_0[0]);
 	writeFloatPC(fout, "%f starting point", pos_0[1]);
@@ -289,6 +289,7 @@ float calc_angle(float* pos_0, float* pos_1)
 	writeFloatPC(fout, "%f ", pos_1[0]);
 	writeFloatPC(fout, "%f ending point", pos_1[1]);
 	writeEndlPC(fout);
+
 	// Vertical lines
 	if (delta_x == 0)
 	{
@@ -302,6 +303,7 @@ float calc_angle(float* pos_0, float* pos_1)
 		}
 		// Debug
 		writeFloatPC(fout, "returned angle: %.2f", angle);
+
 		return angle;
 	}
 	// Non vertical lines
@@ -324,20 +326,20 @@ float calc_angle(float* pos_0, float* pos_1)
 	// 1st Quadrant do nothing
 	// Debug
 	writeFloatPC(fout, "returned angle: %.2f", angle);
+
 	return angle;
 }
 
 void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move_power)
 {
-	/* Controls x motor and y motor to move pen from starting position
-	to ending position.
+	/* Controls x motor and y motor to move pen from current co-ordinate position
+	to target position, while staying under max specified motor powers.
 
 	PARAMETERS
 	----------
-	pos_0: float array[x,y], starting position.
-	pos_1: float array[x,y], target position.
-	max_draw_power: int <100, maximum motor power allowed while drawing
-	max_move_power: int <100, maximum motor power allowed while moving
+	target_pos: float array[x,y], target position.
+	max_draw_power: int, maximum motor power allowed while drawing
+	max_move_power: int, maximum motor power allowed while moving
 
 	RETURNS
 	-------
