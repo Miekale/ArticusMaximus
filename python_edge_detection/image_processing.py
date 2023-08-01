@@ -102,9 +102,9 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
+image = cv2.imread(r"C:\Users\markd\Downloads\birb.png")
 image = resize_image(image, max_width=360, max_height=400)
-canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=200, aperature_size=3)
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=40, thresh_upper=250, aperature_size=3)
 
 
 # Find contours from canny blurred image
@@ -148,7 +148,7 @@ for contour in range(len(contours)):
         contours[contour][point] = [contours[contour][point][0] / 2, contours[contour][point][1] / 2]
 
 # Write contours to file
-f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\contour_output.txt", 'w')
+f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\bird.txt", 'w')
 for contour in contours:
     for i in range(len(contour)):
         if i == 0:
