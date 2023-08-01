@@ -1,13 +1,13 @@
 #include "PC_FileIO.c"
 
 // DEBUG OUTPUT
-TFileHandle fout;
+//TFileHandle fout;
 
 // Global Hardware Constants
 float const GEAR_RADIUS_X = 11.93; // mm
 float const GEAR_RADIUS_Y = 11.93;
-float const GEAR_RADIUS_Z = 13.081;
-float const PEN_DISTANCE = 1;
+float const GEAR_RADIUS_Z = 6.50;
+float const PEN_DISTANCE = 4.5;
 
 // Global Software Constants (UI and File information)
 const int MAX_FILES = 4;
@@ -221,6 +221,7 @@ void zero()
 // Moves pen up or down to page
 void move_pen_z(bool move_up)
 {
+	int encoder_target_z = mm_to_degrees(PEN_DISTANCE, GEAR_RADIUS_Z);
 	if (move_up)
 	{
 		// Setting motor to run forwards until distance is pen distance away from the page
@@ -234,7 +235,7 @@ void move_pen_z(bool move_up)
 	{
 		// Setting motor runs backwards until distance is backwards to 0mm
 		motor[motorB] = 25;
-		while(40 > nMotorEncoder[motorB])
+		while(encoder_target_z > nMotorEncoder[motorB])
 		{}
 		motor[motorB] = 0;
 	}
@@ -283,12 +284,12 @@ float calc_angle(float* pos_0, float* pos_1)
 	float angle = 0;
 
 	// Debug
-	writeFloatPC(fout, "%f ", pos_0[0]);
-	writeFloatPC(fout, "%f starting point", pos_0[1]);
-	writeEndlPC(fout);
-	writeFloatPC(fout, "%f ", pos_1[0]);
-	writeFloatPC(fout, "%f ending point", pos_1[1]);
-	writeEndlPC(fout);
+	//writeFloatPC(fout, "%f ", pos_0[0]);
+	//writeFloatPC(fout, "%f starting point", pos_0[1]);
+	//writeEndlPC(fout);
+	//writeFloatPC(fout, "%f ", pos_1[0]);
+	//writeFloatPC(fout, "%f ending point", pos_1[1]);
+	//writeEndlPC(fout);
 
 	// Vertical lines
 	if (delta_x == 0)
@@ -302,7 +303,7 @@ float calc_angle(float* pos_0, float* pos_1)
 			angle = 90;
 		}
 		// Debug
-		writeFloatPC(fout, "returned angle: %.2f", angle);
+		//writeFloatPC(fout, "returned angle: %.2f", angle);
 
 		return angle;
 	}
@@ -325,7 +326,7 @@ float calc_angle(float* pos_0, float* pos_1)
 	}
 	// 1st Quadrant do nothing
 	// Debug
-	writeFloatPC(fout, "returned angle: %.2f", angle);
+	//writeFloatPC(fout, "returned angle: %.2f", angle);
 
 	return angle;
 }
@@ -389,23 +390,23 @@ void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move
 			if (x_0 > actual_target[0] && actual_target[0] - current_pos[0] > POS_TOL)
 			{
 				x_passed_target = true;
-				writeTextPC(fout, "PASSED TARGETx1");
+				//writeTextPC(fout, "PASSED TARGETx1");
 			}
 			else if (x_0 < actual_target[0] && current_pos[0] - actual_target[0] > POS_TOL)
 			{
 				x_passed_target = true;
-				writeTextPC(fout, "PASSED TARGETx2");
+				//writeTextPC(fout, "PASSED TARGETx2");
 			}
 
 			if (y_0 > actual_target[1] && actual_target[1] - current_pos[1] > POS_TOL)
 			{
 				y_passed_target = true;
-				writeTextPC(fout, "PASSED TARGETy1");
+				//writeTextPC(fout, "PASSED TARGETy1");
 			}
 			else if (y_0 < actual_target[1] && current_pos[1] - actual_target[1] > POS_TOL)
 			{
 				y_passed_target = true;
-				writeTextPC(fout, "PASSED TARGETy2");
+				//writeTextPC(fout, "PASSED TARGETy2");
 			}
 			//displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
 			//displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
