@@ -331,7 +331,8 @@ float calc_angle(float* pos_0, float* pos_1)
 	return angle;
 }
 
-void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move_power)
+void draw_or_move(float* target_pos, bool draw, int max_draw_power, 
+			      int max_move_power)
 {
 	/* Controls x motor and y motor to move pen from current co-ordinate position
 	to target position, while staying under max specified motor powers.
@@ -383,33 +384,37 @@ void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move
 		motor[motorA] = -motor_powers[0];
 		motor[motorD] = -motor_powers[1];
 
-		while (((abs(current_pos[0] - actual_target[0]) > POS_TOL) || (abs(current_pos[1] - actual_target[1]) > POS_TOL)) && !x_passed_target && !y_passed_target)
+		while (((abs(current_pos[0] - actual_target[0]) > POS_TOL) || 
+				(abs(current_pos[1] - actual_target[1]) > POS_TOL)) && 
+				!x_passed_target && !y_passed_target)
 		{
 			get_current_pos(current_pos);
 
-			if (x_0 > actual_target[0] && actual_target[0] - current_pos[0] > POS_TOL)
+			if (x_0 > actual_target[0] && 
+			    actual_target[0] - current_pos[0] > POS_TOL)
 			{
 				x_passed_target = true;
 				//writeTextPC(fout, "PASSED TARGETx1");
 			}
-			else if (x_0 < actual_target[0] && current_pos[0] - actual_target[0] > POS_TOL)
+			else if (x_0 < actual_target[0] && 
+			         current_pos[0] - actual_target[0] > POS_TOL)
 			{
 				x_passed_target = true;
 				//writeTextPC(fout, "PASSED TARGETx2");
 			}
 
-			if (y_0 > actual_target[1] && actual_target[1] - current_pos[1] > POS_TOL)
+			if (y_0 > actual_target[1] && 
+			    actual_target[1] - current_pos[1] > POS_TOL)
 			{
 				y_passed_target = true;
 				//writeTextPC(fout, "PASSED TARGETy1");
 			}
-			else if (y_0 < actual_target[1] && current_pos[1] - actual_target[1] > POS_TOL)
+			else if (y_0 < actual_target[1] && 
+			         current_pos[1] - actual_target[1] > POS_TOL)
 			{
 				y_passed_target = true;
 				//writeTextPC(fout, "PASSED TARGETy2");
 			}
-			//displayString(15, "%f %f target position", actual_target[0], actual_target[1]);
-			//displayString(17, "%f %f current position", current_pos[0], current_pos[1]);
 		}
 
 		motor[motorA] = motor[motorD] = 0;
@@ -437,7 +442,6 @@ void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move
 			// Debug
 			//displayString(5, "%f target position", actual_target[0]);
 			//displayString(7, "%f current position", current_pos[0]);
-			//displayString(9, "%f DIFFERENCE", abs(current_pos[0] - actual_target[0]));
 			get_current_pos(current_pos);
 		}
 		motor[motorA] = 0;
@@ -461,7 +465,6 @@ void draw_or_move(float* target_pos, bool draw, int max_draw_power, int max_move
 			// Debug
 			//displayString(5, "%f target position", actual_target[1]);
 			//displayString(7, "%f current position", current_pos[1]);
-			//displayString(9, "%f DIFFERENCE", abs(current_pos[1] - actual_target[1]));
 			get_current_pos(current_pos);
 		}
 		motor[motorD] = 0;
@@ -505,7 +508,9 @@ void draw_image_from_file(string file_name)
 		}
 
 		// Move to point
-		draw_or_move(next_point, is_draw, MAX_DRAW_POWER, MAX_MOVE_POWER);
+		draw_or_move(next_point, is_draw, 
+					 MAX_DRAW_POWER, 
+					 MAX_MOVE_POWER);
 		// Output file debug
 		/*
 		writeTextPC(fout, move_or_draw);
@@ -557,7 +562,8 @@ task main()
 
 				if(pointer == 1)
 				{
-					//the amount of sub options is based on the size of the constant array of file names
+					//the amount of sub options is based on the size of the 
+					//constant array of file names
 					sub_options = MAX_FILES + 1;
 					dispFiles(sub_pointer);
 				}
