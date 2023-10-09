@@ -1,7 +1,7 @@
 # ArticusMaximus
 
 Articus maximus is a sketching robot that takes digital image files (.JPG, .PNG) and draws the equivalent line-art on paper. 
-This repo contains all image processing code in Python (python_edge_detection/image_processing.py) and the firmware code in C (robot_c/PID).
+This repo contains all image processing code in Python **(python_edge_detection/image_processing.py)** and the firmware code in C **(robot_c/PID)**.
 
 ## Python Image Processing
 
