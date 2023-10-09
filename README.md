@@ -41,7 +41,6 @@ The closed-loop control program has better drawing accuracy compared to the open
 speed to accuracy tradeoff for each drawing.
 
 ## What We Learned
-1. Hardware integration is HARD. Even with software unit testing, small integration errors that were not caught during development ended up costing us
-   many hours to fix.
-2. We never want to build a project requiring high precision with Legos ever again.
+1. Hardware integration is HARD. Even with software unit testing, small integration errors that were not caught during development ended up costing us many hours to fix. This stresses the need for extensive unit testing before integrating all systems.
+2. The mechanical systems of a machine are vital to its success, especially in regards to picking the correct materials for each task(Never choose LEGO). 
 3. I hate the ROBOTC IDE I hate the ROBOTC IDE I hate the ROBOTC IDE I hate the ROBOTC IDE I hate the ROBOTC IDE I hate the ROBOTC IDE
