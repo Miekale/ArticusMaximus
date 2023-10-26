@@ -73,7 +73,7 @@ def remove_duplicate_points(contour: np.ndarray) -> np.ndarray:
 
     return contour
 
-def Douglas_Peucker(points: np.ndarray, epsilon:int) -> np.ndarray:
+def Douglas_Peucker(points: np.ndarray, epsilon:float) -> np.ndarray:
     """
     Applies the Douglas_Peuker simplification algorithm to a list of points.
 
@@ -81,6 +81,10 @@ def Douglas_Peucker(points: np.ndarray, epsilon:int) -> np.ndarray:
     ---------
     points: np.ndarray
         Array containing points for simplification.
+
+    epsilon: float
+        Determines the distance points can be from the secant line
+        Manipulating this variable changes the magnitude of point reduction
 
     RETURNS
     -------
