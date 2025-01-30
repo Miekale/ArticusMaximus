@@ -4,7 +4,6 @@ import cv2
 
 #Functions:
 def perp_distance(pstart, pend, point):
-
     vectoru = np.array([point[0] - pstart[0], point[1] - pstart[1]])
     vectorv = np.array([pend[0] - pstart[0], pend[1] - pstart[1]])
     
@@ -28,12 +27,16 @@ def remove_duplicate_points(contour):
             print(contour)
             num_deleted += 1
         i += 1
+    if type(contour) == list:
+        contour = np.array([contour, contour])
     return contour
 
 def Douglas_Peucker(points:np.array, epsilon:int):
     #max distance and index of the distance
     dmax = 0
     index = 0
+    if points.shape == (2,):
+        points = np.array([points, points])
 
     #for all points find distance and set dmax if largest
     for i, value in enumerate(points):
@@ -70,8 +73,6 @@ def remove_duplicate_contours(contours, match_thresh, pixel_thresh):
     i = 0
     num_deleted = 0
     while(i < len(contours) - 1):
-        # print(f'{ i } and {i + 1}: {cv2.matchShapes(contours[i], contours[i+1], cv2.CONTOURS_MATCH_I3,0)}')
-        # print(f'{contours[i].mean()} and {contours[i+1].mean()}')
         match_score = cv2.matchShapes(contours[i - num_deleted], contours[i+1 - num_deleted], cv2.CONTOURS_MATCH_I3,0)
         # Remove contours with same shape in same location
         if match_score < match_thresh:
@@ -102,9 +103,9 @@ def resize_image(image, max_width, max_height):
     return image 
 
 # Pre-processing 
-image = cv2.imread(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\sample_img\goat.jpg")
+image = cv2.imread(r"C:\Users\Humperdink2\Documents\github\ArticusMaximus\python_edge_detection\sample_img\pbear.jpg")
 image = resize_image(image, max_width=360, max_height=400)
-canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=30, thresh_upper=200, aperature_size=3)
+canny_blur = detect_edges(image, blur_kernel=(5,5), thresh_lower=10, thresh_upper=30, aperature_size=3)
 
 
 # Find contours from canny blurred image
@@ -112,7 +113,7 @@ contours, hierarchy = cv2.findContours(canny_blur,
     cv2.RETR_TREE , cv2.CHAIN_APPROX_SIMPLE)
 
 # Epsilon value for Douglas Peucker algorithm, bigger == less details
-EPSILON = 0.5
+EPSILON = 2
 
 # Filter out small contours and duplicate contours
 contours = list(contours)
@@ -124,6 +125,7 @@ i = 0
 while (i < len(contours)):
     # Contours is in [[],] shape, squeeze to simplify 
     contours[i] = np.squeeze(contours[i])
+    print(contours[i])
     # Remove any two points that are the same & next to each other
     contours[i] = remove_duplicate_points(contours[i])
     # Douglas Peucker Algorithm
@@ -136,7 +138,7 @@ while (i < len(contours)):
 
 # Filter again after simplifying 
 contours = remove_small_contours(contours, 2)
-contours = remove_duplicate_contours(contours, 0.05, 10)
+contours = remove_duplicate_contours(contours, 0.05, 30)
 
 h, w = image.shape[:2]
 #Reflecting Image
@@ -148,7 +150,7 @@ for contour in range(len(contours)):
         contours[contour][point] = [contours[contour][point][0] / 2, contours[contour][point][1] / 2]
 
 # Write contours to file
-f = open(r"C:\Users\markd\Documents\GitHub\ArticusMaximus\python_edge_detection\contour_output.txt", 'w')
+f = open(r"C:\Users\Humperdink2\Documents\github\ArticusMaximus\python_edge_detection\output.txt", 'w')
 for contour in contours:
     for i in range(len(contour)):
         if i == 0:
