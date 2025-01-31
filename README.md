@@ -28,7 +28,7 @@ We also modify each contours themselves, to speed up the robot drawing speed:
 
 ## C Firmware
 
-Our robot uses a 2-aix gantry system for movement in the x and y-axis, with each axis powered by one motor. 
+Our robot uses a 2-axis gantry system for movement in the x and y-axis, with each axis powered by one motor. 
 We programmed 2 different methods of control:
 
 1. Open-loop control
