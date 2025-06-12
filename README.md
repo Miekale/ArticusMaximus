@@ -25,7 +25,9 @@ We do several filtering steps on this contour list to remove undesirable contour
 We also modify each contours themselves, to speed up the robot drawing speed:
 1. Removing duplicate points
 2. Contour simplification
-![image](https://github.com/user-attachments/assets/ebc05966-f24e-4009-9764-9d9e363531f7)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ebc05966-f24e-4009-9764-9d9e363531f7" width="50%">
+</p>
 
 ## C Firmware
 
